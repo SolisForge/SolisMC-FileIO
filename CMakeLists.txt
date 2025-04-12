@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.25)
 project(nbt CXX)
 
 set(CXX_STANDARD 21)
@@ -10,10 +10,12 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(solis REQUIRED)
+solis_depend(fmt REQUIRED)
 
 # =============================================================================
 # Setup library
 # =============================================================================
-solis_library(${PROJECT_NAME} DIRECTORY "src" DEPENDS solis::worlds)
+solis_namespace(NAMESPACE minecraft)
+solis_library("${PROJECT_NAME}" DIRECTORY "src/nbt/format" DEPENDS solis::utils fmt::fmt)
 
-solis_package(NAMESPACE minecraft::)
+solis_package()

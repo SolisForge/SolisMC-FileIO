@@ -1,1 +1,0 @@
-#include "minecraft/nbt/tags.hpp"
