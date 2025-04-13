@@ -16,6 +16,7 @@
 */
 
 #include "minecraft/nbt/format/tags.hpp"
+#include "minecraft/nbt/io/parser.hpp"
 #include <solis/utils/errors.hpp>
 
 namespace minecraft::nbt {

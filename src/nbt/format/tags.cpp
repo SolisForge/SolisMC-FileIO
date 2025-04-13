@@ -34,7 +34,7 @@ NBTTags Tag(uint8_t id) {
 //    To INT runtime conversion
 // ============================================================================
 
-uint8_t TagID(NBTTags &t) {
+uint8_t TagID(NBTTags t) {
 #define GENERATE_CASE(type)                                                    \
   case NBTTags::type:                                                          \
     return TagID<NBTTags::type>();

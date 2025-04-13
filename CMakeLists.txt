@@ -16,6 +16,7 @@ solis_depend(fmt REQUIRED)
 # Setup library
 # =============================================================================
 solis_namespace(NAMESPACE minecraft)
-solis_library("${PROJECT_NAME}" DIRECTORY "src/nbt/format" DEPENDS solis::utils fmt::fmt)
+solis_library("${PROJECT_NAME}_format" DIRECTORY "src/nbt/format" DEPENDS solis::utils fmt::fmt)
+solis_library("${PROJECT_NAME}_io" DIRECTORY "src/nbt/io" DEPENDS solis::utils fmt::fmt nbt_format)
 
 solis_package()
