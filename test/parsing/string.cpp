@@ -4,9 +4,9 @@
 
 using namespace minecraft::nbt;
 
-TEST_CASE("nbt::Byte parsing") {
+TEST_CASE("nbt::String parsing") {
   // Input
-  auto parser = NBTByteParser();
+  auto parser = NBTStringParser();
   uint8_t *bytes = nullptr;
   size_t N;
 
@@ -14,29 +14,27 @@ TEST_CASE("nbt::Byte parsing") {
   struct Expected {
     ParseResult result;
     size_t name_size;
+    size_t value_size;
     const char *name;
-    int8_t value;
+    const char *value;
   };
   Expected exp;
 
   // Define subcases
   SUBCASE("Expected") {
-    bytes = new uint8_t[8]{
-        NBTTags::Byte, '\x04', '\x00', 'B',
-        'y',           't',    'e',    static_cast<unsigned char>('\x80')};
-    N = 8;
-    exp = Expected{ParseResult::SUCCESS, 4, "Byte", '\x80'};
+    bytes = new uint8_t[22]{"\x08\x06\x00String\x08\x00HelloWorld"};
+    N = 21;
+    exp = Expected{ParseResult::SUCCESS, 6, 8, "String", "HelloWorld"};
   }
   SUBCASE("Too much") {
-    bytes = new uint8_t[11]{NBTTags::Byte, '\x05', '\x00', 'H',    'e',   'l',
-                            'l',           'o',    '\x12', '\x02', '\x03'};
-    N = 11;
-    exp = Expected{ParseResult::SUCCESS, 5, "Hello", 0x12};
+    bytes = new uint8_t[25]{"\x08\x06\x00String\x0a\x00HelloWorld\x08\x06\x00"};
+    N = 25;
+    exp = Expected{ParseResult::SUCCESS, 6, 10, "String", "HelloWorld"};
   }
   SUBCASE("Not enough") {
-    bytes = new uint8_t[6]{NBTTags::Byte, '\x05', '\x00', 'T', 'e', 's'};
+    bytes = new uint8_t[7]{"\x08\x06\x00Str"};
     N = 6;
-    exp = Expected{ParseResult::UNFINISHED, 5, "Tes", 0x00};
+    exp = Expected{ParseResult::UNFINISHED, 6, 0, "Str", ""};
   }
 
   // Test the case
@@ -47,7 +45,8 @@ TEST_CASE("nbt::Byte parsing") {
   CHECK(ret == exp.result);
   CHECK(b->getNameSize() == exp.name_size);
   CHECK(strncmp(b->getName(), exp.name, b->getNameSize()) == 0);
-  CHECK(b->val == exp.value);
+  CHECK(b->val_size == exp.value_size);
+  CHECK(strncmp(b->val, exp.value, b->val_size) == 0);
 
   if (bytes != nullptr)
     delete bytes;

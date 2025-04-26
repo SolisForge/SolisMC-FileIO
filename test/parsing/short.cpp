@@ -63,4 +63,5 @@ TEST_CASE("nbt::Short parsing") {
 
   if (bytes != nullptr)
     delete bytes;
+  delete b;
 }

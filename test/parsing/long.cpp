@@ -81,4 +81,5 @@ TEST_CASE("nbt::Long parsing") {
 
   if (bytes != nullptr)
     delete bytes;
+  delete b;
 }

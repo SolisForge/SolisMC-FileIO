@@ -160,7 +160,7 @@ template <> ParseResult NBTLongParser::parse_payload(_NBT_STREAM_STRM_ARGS) {
 /**
  * @brief Parse an string value from a NBT stream
  */
-template <> ParseResult NBTStringParser::parse_payload(_NBT_STREAM_STRM_ARGS) {
+ParseResult NBTStringParser::parse_payload(_NBT_STREAM_STRM_ARGS) {
   // Parse string size
   ParseResult ret;
   if (!has_flag(flags, ParseFlags::PAYLOAD_SIZE)) {

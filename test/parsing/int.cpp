@@ -72,4 +72,5 @@ TEST_CASE("nbt::Int parsing") {
 
   if (bytes != nullptr)
     delete bytes;
+  delete b;
 }

@@ -25,7 +25,6 @@
 #include <solis/utils/output.hpp>
 #include <solis/utils/types.hpp>
 
-
 #include <iostream>
 
 namespace minecraft::nbt {
@@ -53,7 +52,7 @@ struct ParseFlags {
   CFLAG(ID, 0b00000001)
   CFLAG(NAME_SIZE, ID << 1)
   CFLAG(NAME, NAME_SIZE << 1)
-  CFLAG(PAYLOAD_SIZE, NAME_SIZE << 1)
+  CFLAG(PAYLOAD_SIZE, NAME << 1)
   CFLAG(PAYLOAD, PAYLOAD_SIZE << 1)
 };
 

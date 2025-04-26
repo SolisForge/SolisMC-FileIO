@@ -27,7 +27,7 @@ namespace minecraft::nbt {
 template <typename T, NBTTags::Tags E = Tag<T>()>
 struct NBTIntegralParser : public NBTTypeParser<T, E> {
   virtual ParseResult parse_payload(_NBT_STREAM_STRM_ARGS) override;
-  T *initialize_var() override { return new T(static_cast<T>(0)); }
+  virtual T *initialize_var() override { return new T(static_cast<T>(0)); }
 };
 
 typedef NBTIntegralParser<Byte> NBTByteParser;
@@ -35,7 +35,11 @@ typedef NBTIntegralParser<Boolean, NBTTags::Byte> NBTBooleanParser;
 typedef NBTIntegralParser<Short> NBTShortParser;
 typedef NBTIntegralParser<Int> NBTIntParser;
 typedef NBTIntegralParser<Long> NBTLongParser;
-typedef NBTIntegralParser<String> NBTStringParser;
+
+struct NBTStringParser : NBTTypeParser<String> {
+  virtual String *initialize_var() override { return new String(); }
+  virtual ParseResult parse_payload(_NBT_STREAM_STRM_ARGS) override;
+};
 
 // -------------------------- Float / Double Parsers --------------------------
 
