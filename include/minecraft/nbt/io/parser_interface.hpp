@@ -23,6 +23,8 @@
 #include <cstddef>
 #include <solis/utils/flags.hpp>
 #include <solis/utils/output.hpp>
+#include <solis/utils/types.hpp>
+
 
 #include <iostream>
 
@@ -163,6 +165,8 @@ protected:
    * @brief Read an integral-type value from the type (i.e. byte, short, int,
    * long, etc)
    *
+   * The NBT format stores the values as big-endian.
+   *
    * @tparam T
    * @tparam NB
    * @param dest
@@ -172,10 +176,13 @@ protected:
   inline ParseResult read_integral(_NBT_STREAM_STRM_ARGS, T &dest) {
     dest = 0;
     NBT_PARSE_N_BYTE_BEGIN()
+#if SOLIS_BIG_ENDIAN == 1
+    dest += ((T)(*strm)[0]);
     if (read_bytes < NB - 1)
-      dest += ((T)(*strm)[0]) << BIT_PER_BYTE;
-    else if (read_bytes == 1)
-      dest += ((T)(*strm)[0]);
+      dest = dest << BIT_PER_BYTE;
+#else
+    dest += ((T)(*strm)[0]) << read_bytes * BIT_PER_BYTE;
+#endif
     NBT_PARSE_N_BYTE_END(NB)
     read_bytes = 0;
     return ParseResult::SUCCESS;
@@ -262,7 +269,7 @@ protected:
    * parsing has not been completed due to lack of data and FAILED otherwise
    */
   inline ParseResult read(_NBT_STREAM_STRM_ARGS, int32_t &dest) {
-    return read_integral(strm, N, dest);
+    return read_integral<int32_t, 4>(strm, N, dest);
   }
 
   /**
@@ -275,7 +282,7 @@ protected:
    * parsing has not been completed due to lack of data and FAILED otherwise
    */
   inline ParseResult read(_NBT_STREAM_STRM_ARGS, uint32_t &dest) {
-    return read_integral(strm, N, dest);
+    return read_integral<uint32_t, 4>(strm, N, dest);
   }
 
   /**
@@ -288,7 +295,7 @@ protected:
    * parsing has not been completed due to lack of data and FAILED otherwise
    */
   inline ParseResult read(_NBT_STREAM_STRM_ARGS, int64_t &dest) {
-    return read_integral(strm, N, dest);
+    return read_integral<int64_t, 8>(strm, N, dest);
   }
 
   /**
@@ -301,7 +308,7 @@ protected:
    * parsing has not been completed due to lack of data and FAILED otherwise
    */
   inline ParseResult read(_NBT_STREAM_STRM_ARGS, uint64_t &dest) {
-    return read_integral(strm, N, dest);
+    return read_integral<uint64_t, 8>(strm, N, dest);
   }
 
   /**

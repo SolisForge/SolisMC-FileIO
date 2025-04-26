@@ -1,13 +1,11 @@
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <cstring>
 #include <doctest.h>
-#include <iostream>
 #include <minecraft/nbt/io/parser_primitives.hpp>
 
 using namespace minecraft::nbt;
 
-TEST_CASE("byte") {
+TEST_CASE("nbt::Byte parsing") {
   // Input
-  // auto parser = NBTParser::make<Byte, NBTTags::Byte>();
   auto parser = NBTByteParser();
   uint8_t *bytes = nullptr;
   size_t N;
@@ -24,19 +22,19 @@ TEST_CASE("byte") {
   // Define subcases
   SUBCASE("Expected") {
     bytes = new uint8_t[8]{
-        '\x01', '\x00', '\x04', 'B',
-        'y',    't',    'e',    static_cast<unsigned char>('\x80')};
+        NBTTags::Byte, '\x04', '\x00', 'B',
+        'y',           't',    'e',    static_cast<unsigned char>('\x80')};
     N = 8;
     exp = Expected{ParseResult::SUCCESS, 4, "Byte", '\x80'};
   }
   SUBCASE("Too much") {
-    bytes = new uint8_t[11]{'\x01', '\x00', '\x05', 'H',   'e',  'l',
-                            'l',    'o',    '\x12', '\02', '\03'};
+    bytes = new uint8_t[11]{NBTTags::Byte, '\x05', '\x00', 'H',    'e',   'l',
+                            'l',           'o',    '\x12', '\x02', '\x03'};
     N = 11;
     exp = Expected{ParseResult::SUCCESS, 5, "Hello", 0x12};
   }
   SUBCASE("Not enough") {
-    bytes = new uint8_t[6]{'\x01', '\x00', '\x05', 'T', 'e', 's'};
+    bytes = new uint8_t[6]{NBTTags::Byte, '\x05', '\x00', 'T', 'e', 's'};
     N = 6;
     exp = Expected{ParseResult::UNFINISHED, 5, "Tes", 0x00};
   }
