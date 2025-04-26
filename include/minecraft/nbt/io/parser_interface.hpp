@@ -1,10 +1,10 @@
-#ifndef NBT_IO_PARSER_HPP
-#define NBT_IO_PARSER_HPP
+#ifndef NBT_IO_PARSER_INTERFACE_HPP
+#define NBT_IO_PARSER_INTERFACE_HPP
 
 /**
   ==================================== NBT ====================================
 
-  This file contains the parsing of NBT streams.
+  This file contains the parsing interface of NBT streams.
   Based on the MC wiki:
     https://minecraft.wiki/w/NBT_format
 
@@ -130,7 +130,7 @@ protected:
    * @return true if the tag is the same
    * @return false otherwise
    */
-  bool check_tag_id(NBT_STREAM_STD_ARGS, uint8_t tag);
+  bool check_tag_id(NBT_STREAM_STD_ARGS, NBTTags::Tags tag);
 
   /**
    * @brief Parse the header of the tag (check type & name)
@@ -143,7 +143,7 @@ protected:
    * parsing has not been completed due to lack of data and FAILED
    otherwise
    */
-  ParseResult parse_type_header(NBT_STREAM_STD_ARGS, uint8_t tag,
+  ParseResult parse_type_header(NBT_STREAM_STD_ARGS, NBTTags::Tags tag,
                                 NBTType *dest);
 
   // ==========================================================================
@@ -159,6 +159,15 @@ protected:
     N -= inc;
   }
 
+  /**
+   * @brief Read an integral-type value from the type (i.e. byte, short, int,
+   * long, etc)
+   *
+   * @tparam T
+   * @tparam NB
+   * @param dest
+   * @return ParseResult
+   */
   template <typename T, uint8_t NB = sizeof(T)>
   inline ParseResult read_integral(_NBT_STREAM_STRM_ARGS, T &dest) {
     dest = 0;
@@ -173,6 +182,25 @@ protected:
   }
 
   /**
+   * @brief Parse a floating point
+   *
+   * @return ParseResult
+   */
+  template <typename T, typename B, uint8_t NB = sizeof(T)>
+  ParseResult read_floating(_NBT_STREAM_STRM_ARGS, T &dest, B &buffer) {
+    static_assert(
+        sizeof(T) == sizeof(B),
+        "Floating point T and buffer B should have the same byte size!");
+    if (auto ret = read_integral<B, NB>(strm, N, buffer);
+        ret != ParseResult::SUCCESS)
+      return ret;
+
+    // Convert it to a float value
+    dest = *reinterpret_cast<T *>(&buffer);
+    return ParseResult::SUCCESS;
+  }
+
+  /**
    * @brief Parse the next two bytes in the stream as a short value
    *
    * @param strm the stream to read
@@ -181,7 +209,7 @@ protected:
    * @return a parse result, SUCCESS if parsing finished properly, UNFINISHED if
    * parsing has not been completed due to lack of data and FAILED otherwise
    */
-  inline ParseResult read_short(_NBT_STREAM_STRM_ARGS, int16_t &dest) {
+  inline ParseResult read(_NBT_STREAM_STRM_ARGS, int8_t &dest) {
     return read_integral(strm, N, dest);
   }
 
@@ -194,59 +222,7 @@ protected:
    * @return a parse result, SUCCESS if parsing finished properly, UNFINISHED if
    * parsing has not been completed due to lack of data and FAILED otherwise
    */
-  inline ParseResult read_short(_NBT_STREAM_STRM_ARGS, uint16_t &dest) {
-    return read_integral(strm, N, dest);
-  }
-
-  /**
-   * @brief Parse the next four bytes in the stream as a int value
-   *
-   * @param strm the stream to read
-   * @param N the number of bytes in the stream
-   * @param dest the destination int variable
-   * @return a parse result, SUCCESS if parsing finished properly, UNFINISHED if
-   * parsing has not been completed due to lack of data and FAILED otherwise
-   */
-  inline ParseResult read_int(_NBT_STREAM_STRM_ARGS, int32_t &dest) {
-    return read_integral(strm, N, dest);
-  }
-
-  /**
-   * @brief Parse the next four bytes in the stream as an unsigned int value
-   *
-   * @param strm the stream to read
-   * @param N the number of bytes in the stream
-   * @param dest the destination unsigned int variable
-   * @return a parse result, SUCCESS if parsing finished properly, UNFINISHED if
-   * parsing has not been completed due to lack of data and FAILED otherwise
-   */
-  inline ParseResult read_int(_NBT_STREAM_STRM_ARGS, uint32_t &dest) {
-    return read_integral(strm, N, dest);
-  }
-
-  /**
-   * @brief Parse the next eight bytes in the stream as a long value
-   *
-   * @param strm the stream to read
-   * @param N the number of bytes in the stream
-   * @param dest the destination long variable
-   * @return a parse result, SUCCESS if parsing finished properly, UNFINISHED if
-   * parsing has not been completed due to lack of data and FAILED otherwise
-   */
-  inline ParseResult read_long(_NBT_STREAM_STRM_ARGS, int64_t &dest) {
-    return read_integral(strm, N, dest);
-  }
-
-  /**
-   * @brief Parse the next eight bytes in the stream as an unsigned long value
-   *
-   * @param strm the stream to read
-   * @param N the number of bytes in the stream
-   * @param dest the destination unsigned long variable
-   * @return a parse result, SUCCESS if parsing finished properly, UNFINISHED if
-   * parsing has not been completed due to lack of data and FAILED otherwise
-   */
-  inline ParseResult read_long(_NBT_STREAM_STRM_ARGS, uint64_t &dest) {
+  inline ParseResult read(_NBT_STREAM_STRM_ARGS, uint8_t &dest) {
     return read_integral(strm, N, dest);
   }
 
@@ -259,8 +235,85 @@ protected:
    * @return a parse result, SUCCESS if parsing finished properly, UNFINISHED if
    * parsing has not been completed due to lack of data and FAILED otherwise
    */
-  inline ParseResult read_string(_NBT_STREAM_STRM_ARGS, char **dest,
-                                 uint32_t size) {
+  inline ParseResult read(_NBT_STREAM_STRM_ARGS, int16_t &dest) {
+    return read_integral(strm, N, dest);
+  }
+
+  /**
+   * @brief Parse the next two bytes in the stream as an unsigned short value
+   *
+   * @param strm the stream to read
+   * @param N the number of bytes in the stream
+   * @param dest the destination unsigned short variable
+   * @return a parse result, SUCCESS if parsing finished properly, UNFINISHED if
+   * parsing has not been completed due to lack of data and FAILED otherwise
+   */
+  inline ParseResult read(_NBT_STREAM_STRM_ARGS, uint16_t &dest) {
+    return read_integral(strm, N, dest);
+  }
+
+  /**
+   * @brief Parse the next four bytes in the stream as a int value
+   *
+   * @param strm the stream to read
+   * @param N the number of bytes in the stream
+   * @param dest the destination int variable
+   * @return a parse result, SUCCESS if parsing finished properly, UNFINISHED if
+   * parsing has not been completed due to lack of data and FAILED otherwise
+   */
+  inline ParseResult read(_NBT_STREAM_STRM_ARGS, int32_t &dest) {
+    return read_integral(strm, N, dest);
+  }
+
+  /**
+   * @brief Parse the next four bytes in the stream as an unsigned int value
+   *
+   * @param strm the stream to read
+   * @param N the number of bytes in the stream
+   * @param dest the destination unsigned int variable
+   * @return a parse result, SUCCESS if parsing finished properly, UNFINISHED if
+   * parsing has not been completed due to lack of data and FAILED otherwise
+   */
+  inline ParseResult read(_NBT_STREAM_STRM_ARGS, uint32_t &dest) {
+    return read_integral(strm, N, dest);
+  }
+
+  /**
+   * @brief Parse the next eight bytes in the stream as a long value
+   *
+   * @param strm the stream to read
+   * @param N the number of bytes in the stream
+   * @param dest the destination long variable
+   * @return a parse result, SUCCESS if parsing finished properly, UNFINISHED if
+   * parsing has not been completed due to lack of data and FAILED otherwise
+   */
+  inline ParseResult read(_NBT_STREAM_STRM_ARGS, int64_t &dest) {
+    return read_integral(strm, N, dest);
+  }
+
+  /**
+   * @brief Parse the next eight bytes in the stream as an unsigned long value
+   *
+   * @param strm the stream to read
+   * @param N the number of bytes in the stream
+   * @param dest the destination unsigned long variable
+   * @return a parse result, SUCCESS if parsing finished properly, UNFINISHED if
+   * parsing has not been completed due to lack of data and FAILED otherwise
+   */
+  inline ParseResult read(_NBT_STREAM_STRM_ARGS, uint64_t &dest) {
+    return read_integral(strm, N, dest);
+  }
+
+  /**
+   * @brief Parse the next two bytes in the stream as a short value
+   *
+   * @param strm the stream to read
+   * @param N the number of bytes in the stream
+   * @param dest the destination short variable
+   * @return a parse result, SUCCESS if parsing finished properly, UNFINISHED if
+   * parsing has not been completed due to lack of data and FAILED otherwise
+   */
+  inline ParseResult read(_NBT_STREAM_STRM_ARGS, char **dest, uint32_t size) {
     // Initialize char array if needed
     if (*dest == nullptr)
       (*dest) = new char[size];
@@ -283,7 +336,7 @@ protected:
 };
 
 // ############################################################################
-// Specialized NBT parser
+// Base templated NBT parser
 // ############################################################################
 
 /**
@@ -291,7 +344,8 @@ protected:
  *
  * @tparam T the NBT type this parser will parse
  */
-template <typename T, NBTTags E> struct NBTTypeParser : _INBTTypeParser {
+template <typename T, NBTTags::Tags E = Tag<T>()>
+struct NBTTypeParser : _INBTTypeParser {
 
   ParseResult parse(NBT_STREAM_PARSE_HEADER) override {
     // If already parsed, stop
@@ -299,10 +353,10 @@ template <typename T, NBTTags E> struct NBTTypeParser : _INBTTypeParser {
       return ParseResult::SUCCESS;
 
     if (curr == nullptr)
-      curr = new T();
+      curr = initialize_var();
 
     // Parse the header
-    if (auto ret = parse_type_header(NBT_STREAM_FWD_ARGS, TagID(E), curr);
+    if (auto ret = parse_type_header(NBT_STREAM_FWD_ARGS, E, curr);
         ret != ParseResult::SUCCESS)
       return ret;
 
@@ -311,6 +365,12 @@ template <typename T, NBTTags E> struct NBTTypeParser : _INBTTypeParser {
   }
 
   T *getParsed() { return curr; }
+
+  /**
+   * @brief Initialize a NBT type pointer
+   * @return a pointer of the type of the parser
+   */
+  virtual T *initialize_var() { return new T(); }
 
 protected:
   /**
@@ -321,54 +381,6 @@ protected:
 protected:
   T *curr = nullptr;
 };
-
-// ----------------------------- Primitives Parsers ---------------------------
-
-#define NBT_PARSER_DEF(t) typedef NBTTypeParser<t, NBTTags::t> NBT##t##Parser;
-
-NBT_PARSER_DEF(Byte)
-typedef NBTTypeParser<Boolean, NBTTags::Byte> NBTBooleanParser;
-NBT_PARSER_DEF(Short)
-NBT_PARSER_DEF(Int)
-NBT_PARSER_DEF(Long)
-
-// -------------------------- Float / Double Parsers --------------------------
-struct NBTFloatParser : NBTTypeParser<Float, NBTTags::Float> {
-
-  /**
-   * @brief Parse the payload of the given type
-   */
-  virtual ParseResult parse_payload(_NBT_STREAM_STRM_ARGS) override;
-
-protected:
-  uint32_t _bytes; //!< Int buffer for storing float bytes
-};
-
-struct NBTDoubleParser : NBTTypeParser<Double, NBTTags::Double> {
-
-  /**
-   * @brief Parse the payload of the given type
-   */
-  virtual ParseResult parse_payload(_NBT_STREAM_STRM_ARGS) override;
-
-protected:
-  uint64_t _bytes; //!< Long buffer for storing double bytes
-};
-
-// ------------------------------ Complex Parsers -----------------------------
-struct NBTStringParser : NBTTypeParser<String, NBTTags::String> {
-protected:
-  /**
-   * @brief Parse the payload of the given type
-   */
-  virtual ParseResult parse_payload(_NBT_STREAM_STRM_ARGS) override;
-};
-NBT_PARSER_DEF(ByteArray)
-NBT_PARSER_DEF(IntArray)
-NBT_PARSER_DEF(LongArray)
-NBT_PARSER_DEF(Compound)
-
-#undef NBT_PARSER_DEF
 
 // ############################################################################
 // General NBT Parser
@@ -384,7 +396,7 @@ struct NBTParser {
    * @tparam T the NBT type to parse
    * @return a specialized parser
    */
-  template <typename T, NBTTags E> static NBTTypeParser<T, E> make() {
+  template <typename T, NBTTags::Tags E> static NBTTypeParser<T, E> make() {
     static_assert(std::is_base_of_v<NBTType, T>,
                   "T should be a child of NBTType");
     return NBTTypeParser<T, E>();

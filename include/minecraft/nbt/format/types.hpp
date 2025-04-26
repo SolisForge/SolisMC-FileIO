@@ -68,6 +68,7 @@ typedef NBTPrimitive<int32_t> Int;     //!< Int value field
 typedef NBTPrimitive<int64_t> Long;    //!< Long value field
 typedef NBTPrimitive<float> Float;     //!< Float value field
 typedef NBTPrimitive<double> Double;   //!< Double value field
+
 /**
  * @brief String value field
  */
@@ -83,11 +84,10 @@ struct String : NBTPrimitive<char *> {
  * @brief NBT list base interface
  * @tparam T the type of the list elements
  */
-template <typename T> struct AbstractList : NBTType, std::vector<T> {};
-typedef AbstractList<NBTType *> List; //!< List of any NBT type
-typedef AbstractList<Byte> ByteArray; //!< List of bytes
-typedef AbstractList<Int> IntArray;   //!< List of int
-typedef AbstractList<Long> LongArray; //!< List of long
+template <typename T> struct List : NBTType, std::vector<T> {};
+typedef List<Byte> ByteArray; //!< List of bytes
+typedef List<Int> IntArray;   //!< List of int
+typedef List<Long> LongArray; //!< List of long
 
 // ============================================================================
 // NBT Object implementation

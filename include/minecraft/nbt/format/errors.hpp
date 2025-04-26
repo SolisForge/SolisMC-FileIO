@@ -16,7 +16,6 @@
 */
 
 #include "minecraft/nbt/format/tags.hpp"
-#include "minecraft/nbt/io/parser.hpp"
 #include <solis/utils/errors.hpp>
 
 namespace minecraft::nbt {
@@ -25,10 +24,11 @@ struct MismatchNBTTagError : solis::SolisError {
   sconstchar MSG_FORMAT{
       "Mismatched NBT tags: expected {:d} ({:s}), got {:d} ({:s})"};
 
-  MismatchNBTTagError(NBTTags got, NBTTags expected)
-      : solis::SolisError(fmt::format(MSG_FORMAT, TagID(got), TagStr(got),
-                                      TagID(expected), TagStr(expected))) {}
-  MismatchNBTTagError(uint8_t got, uint8_t expected)
+  MismatchNBTTagError(NBTTags::Tags got, NBTTags::Tags expected)
+      : solis::SolisError(fmt::format(MSG_FORMAT, got, TagStr(got), expected,
+                                      TagStr(expected))) {}
+
+  MismatchNBTTagError(TagID_t got, TagID_t expected)
       : solis::SolisError(fmt::format(MSG_FORMAT, got, TagStr(got), expected,
                                       TagStr(expected))) {}
 

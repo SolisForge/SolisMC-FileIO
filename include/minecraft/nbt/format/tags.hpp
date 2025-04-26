@@ -19,6 +19,7 @@
 */
 
 #include "minecraft/nbt/format/types.hpp"
+#include "solis/utils/static.hpp"
 
 namespace minecraft::nbt {
 
@@ -26,23 +27,29 @@ namespace minecraft::nbt {
 //    NBT Tags decription
 // ============================================================================
 
+typedef uint8_t TagID_t;
+
 /**
  * @brief Enumeration correspondance for the NBT types.
  */
-enum class NBTTags : uint8_t {
-  END,
-  Byte,
-  Short,
-  Int,
-  Long,
-  Float,
-  Double,
-  ByteArray,
-  String,
-  List,
-  Compound,
-  IntArray,
-  LongArray
+struct NBTTags {
+  enum Tags : TagID_t {
+    END = 0,
+    Byte = 1,
+    Short = 2,
+    Int = 3,
+    Long = 4,
+    Float = 5,
+    Double = 6,
+    ByteArray = 7,
+    String = 8,
+    List = 9,
+    Compound = 10,
+    IntArray = 11,
+    LongArray = 12,
+
+    ERROR = 255
+  };
 };
 
 // ============================================================================
@@ -58,41 +65,15 @@ enum class NBTTags : uint8_t {
  * @tparam T the type of interest
  * @return the value of the tag
  */
-template <typename T> constexpr uint8_t TagID() {
+template <typename T> constexpr NBTTags::Tags Tag() {
   static_assert(!std::is_base_of<NBTType, T>::value,
                 "The type should be NBT type.");
-  return 0;
+  if (solis::is_specialization<T, List>::value)
+    return NBTTags::List;
+  else if (std::is_base_of_v<Compound, T>)
+    return NBTTags::Compound;
+  return NBTTags::ERROR;
 }
-/**
- * @brief Get the tag value for the given NBT type enumeration.
- *
- * @tparam T the enumeration
- * @return the value of the tag
- */
-template <NBTTags T> constexpr uint8_t TagID() { return 0; }
-
-// ----------------------------------------------------------------------------
-
-/**
- * @brief Get the tag enum for the given NBT type.
- *
- * @tparam T the type of interest
- * @return the corresponding enum
- */
-template <typename T> constexpr NBTTags Tag() {
-  static_assert(!std::is_base_of<NBTType, T>::value,
-                "The type should be NBT type.");
-  return NBTTags::END;
-}
-/**
- * @brief Get the tag enum for the given NBT type's ID.
- *
- * @tparam B the ID of the type
- * @return the corresponding enum
- */
-template <uint8_t B> constexpr NBTTags Tag() { return NBTTags::END; }
-
-// ----------------------------------------------------------------------------
 
 /**
  * @brief Get the tag str version for the given type's enum
@@ -100,7 +81,7 @@ template <uint8_t B> constexpr NBTTags Tag() { return NBTTags::END; }
  * @tparam T the nbt type enum
  * @return the corresponding string representation
  */
-template <NBTTags T> constexpr const char *TagStr() { return "END"; }
+template <NBTTags::Tags T> constexpr const char *TagStr() { return "ERROR"; }
 
 /**
  * @brief Get the tag str version for the given type
@@ -108,71 +89,56 @@ template <NBTTags T> constexpr const char *TagStr() { return "END"; }
  * @tparam T the nbt type
  * @return the corresponding string representation
  */
-template <typename T> constexpr const char *TagStr() { return "END"; }
+template <typename T> inline constexpr const char *TagStr() {
+  return TagStr<Tag<T>>();
+}
 
-/**
- * @brief Get the tag str version for the given type's id
- *
- * @tparam B the nbt type id
- * @return the corresponding string representation
- */
-template <uint8_t B> constexpr const char *TagStr() { return "END"; }
+// ============================================================================
+//    Tags implementation
+// ============================================================================
 
-// ----------------------------------------------------------------------------
-
+#define NBT_STR_FROM_VAL(type)                                                 \
+  template <> inline constexpr const char *TagStr<NBTTags::type>() {           \
+    return #type;                                                              \
+  }
 /*!
  * \def NBT_TAG_FROM_TYPE(type, val)
  * Register a NBT type - Type Enum - Type ID correspondance by making
  * specialization of conversion functions.
  */
-#define NBT_TAG_FROM_TYPE(type, val)                                           \
-  template <> inline constexpr uint8_t TagID<type>() { return val; }           \
-  template <> inline constexpr uint8_t TagID<NBTTags::type>() { return val; }  \
-  template <> inline constexpr NBTTags Tag<type>() { return NBTTags::type; }   \
-  template <> inline constexpr NBTTags Tag<val>() { return NBTTags::type; }    \
-  template <> inline constexpr const char *TagStr<type>() { return #type; }    \
-  template <> inline constexpr const char *TagStr<val>() { return #type; }     \
-  template <> inline constexpr const char *TagStr<NBTTags::type>() {           \
-    return #type;                                                              \
-  }
+#define NBT_TAG_FROM_TYPE(type)                                                \
+  template <> inline constexpr NBTTags::Tags Tag<type>() {                     \
+    return NBTTags::type;                                                      \
+  }                                                                            \
+  NBT_STR_FROM_VAL(type)
 
-// Implement them
-// -----------------
+// ---------------------------------
+// Define special tags
+NBT_STR_FROM_VAL(END)
+NBT_STR_FROM_VAL(ERROR)
 
-NBT_TAG_FROM_TYPE(Byte, 1)
-NBT_TAG_FROM_TYPE(Short, 2)
-NBT_TAG_FROM_TYPE(Int, 3)
-NBT_TAG_FROM_TYPE(Long, 4)
-NBT_TAG_FROM_TYPE(Float, 5)
-NBT_TAG_FROM_TYPE(Double, 6)
-NBT_TAG_FROM_TYPE(ByteArray, 7)
-NBT_TAG_FROM_TYPE(String, 8)
-NBT_TAG_FROM_TYPE(List, 9)
-NBT_TAG_FROM_TYPE(Compound, 10)
-NBT_TAG_FROM_TYPE(IntArray, 11)
-NBT_TAG_FROM_TYPE(LongArray, 12)
+// Define class tags
+NBT_TAG_FROM_TYPE(Byte)
+NBT_TAG_FROM_TYPE(Short)
+NBT_TAG_FROM_TYPE(Int)
+NBT_TAG_FROM_TYPE(Long)
+NBT_TAG_FROM_TYPE(Float)
+NBT_TAG_FROM_TYPE(Double)
+NBT_TAG_FROM_TYPE(String)
+NBT_TAG_FROM_TYPE(ByteArray)
+NBT_TAG_FROM_TYPE(IntArray)
+NBT_TAG_FROM_TYPE(LongArray)
+
+// Define complex tags
+NBT_STR_FROM_VAL(List)
+NBT_TAG_FROM_TYPE(Compound)
+
+#undef NBT_STR_FROM_VAL
+#undef NBT_TAG_FROM_TYPE
 
 // ============================================================================
 //    Runtime tags conversion system
 // ============================================================================
-
-/**
- * @brief Get the tag for the given type's id
- *
- * @param T the nbt type enum
- * @return the corresponding string representation
- */
-NBTTags Tag(uint8_t id);
-
-/**
- * @brief Get the tag id for the given type's tag
- *
- * @param T the nbt type enum
- * @return the corresponding string representation
- */
-uint8_t TagID(NBTTags t);
-
-// ----------------------------------------------------------------------------
 
 /**
  * @brief Get the tag str version for the given type's enum
@@ -180,14 +146,30 @@ uint8_t TagID(NBTTags t);
  * @param T the nbt type enum
  * @return the corresponding string representation
  */
-const char *TagStr(NBTTags t);
-/**
- * @brief Get the tag str version for the given type's id
- *
- * @param T the nbt type enum
- * @return the corresponding string representation
- */
-inline const char *TagStr(uint8_t id) { return TagStr(Tag(id)); }
+inline const char *TagStr(TagID_t t) {
+#define GENERATE_CASE(type)                                                    \
+  case NBTTags::type:                                                          \
+    return TagStr<NBTTags::type>();
+
+  switch (t) {
+    GENERATE_CASE(END)
+    GENERATE_CASE(Byte)
+    GENERATE_CASE(Short)
+    GENERATE_CASE(Int)
+    GENERATE_CASE(Long)
+    GENERATE_CASE(Float)
+    GENERATE_CASE(Double)
+    GENERATE_CASE(ByteArray)
+    GENERATE_CASE(String)
+    GENERATE_CASE(List)
+    GENERATE_CASE(Compound)
+    GENERATE_CASE(IntArray)
+    GENERATE_CASE(LongArray)
+  default:
+    return TagStr<NBTTags::ERROR>();
+  }
+#undef GENERATE_CASE
+}
 
 } // namespace minecraft::nbt
 
