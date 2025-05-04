@@ -18,17 +18,12 @@ solis_depend(fmt REQUIRED)
 # =============================================================================
 message(STATUS "Generating \"${PROJECT_NAME}\" targets")
 solis_namespace(NAMESPACE minecraft)
-solis_library("${PROJECT_NAME}_format" DIRECTORY "src/nbt/format" DEPENDS solis::utils fmt::fmt)
-solis_library("${PROJECT_NAME}_io" DIRECTORY "src/nbt/io" DEPENDS nbt_format)
-
+solis_library("${PROJECT_NAME}_format" DIRECTORY "src/nbt/format" DEPENDS solis::utils fmt::fmt INCLUDES "include/format")
+solis_library("${PROJECT_NAME}_io" DIRECTORY "src/nbt/io" DEPENDS nbt_format INCLUDES "include/io")
 
 if (UNIT_TESTS_ENABLED)
   message(STATUS "Generating \"${PROJECT_NAME}\" tests")
-
-  file(GLOB_RECURSE parsing_test_src LIST_DIRECTORIES false "test/parsing/**.cpp")
-  add_executable(parsing_test ${parsing_test_src})
-  target_link_libraries(parsing_test PRIVATE cpp_test nbt_io)
-  solis_register(parsing_test EXE)
+  solis_program(parsing_test DIRECTORY "test/parsing" DEPENDS nbt_io solis::cpp_test INCLUDES "include/tests")
 endif()
 
 solis_package()
