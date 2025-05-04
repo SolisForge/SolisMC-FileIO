@@ -55,6 +55,8 @@ public:
  * @tparam T the corresponding C++ type
  */
 template <typename T> struct NBTPrimitive : NBTType {
+  typedef T CType;
+
   T val;
   constexpr NBTPrimitive(T other) : val(other) {}
   constexpr NBTPrimitive() {}
@@ -84,10 +86,12 @@ struct String : NBTPrimitive<char *> {
  * @brief NBT list base interface
  * @tparam T the type of the list elements
  */
-template <typename T> struct List : NBTType, std::vector<T> {};
-typedef List<Byte> ByteArray; //!< List of bytes
-typedef List<Int> IntArray;   //!< List of int
-typedef List<Long> LongArray; //!< List of long
+template <typename T> struct List : NBTType, std::vector<T> {
+  typedef T CType;
+};
+typedef List<int8_t> ByteArray;  //!< List of bytes
+typedef List<int32_t> IntArray;  //!< List of int
+typedef List<int64_t> LongArray; //!< List of long
 
 // ============================================================================
 // NBT Object implementation

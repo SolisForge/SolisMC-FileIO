@@ -31,8 +31,9 @@ namespace minecraft::nbt {
  *
  * @tparam T the NBT type
  */
-template <typename T>
-struct INBTArrayParser : public NBTTypeParser<std::vector<T>> {
+template <typename T> struct INBTArrayParser : public NBTTypeParser<List<T>> {
+
+  INBTArrayParser<T>() = default;
 
   virtual ParseResult parse_payload(_NBT_STREAM_STRM_ARGS) override {
     // Parse list size
@@ -42,7 +43,7 @@ struct INBTArrayParser : public NBTTypeParser<std::vector<T>> {
     for (int32_t i = parsed; i < list_size; i++) {
       if (auto ret = parse_item(strm, N); ret != ParseResult::SUCCESS)
         return ret;
-      this->curr->val.push_back(parsing_val);
+      this->curr->push_back(parsing_val);
       parsed++;
     }
 
@@ -61,14 +62,15 @@ struct INBTArrayParser : public NBTTypeParser<std::vector<T>> {
 public:
   int32_t list_size = 0;
 
+  // Item parsing temporary properties
 protected:
   T parsing_val;
   int32_t parsed = 0;
 };
 
-typedef INBTArrayParser<Byte> NBTByteArrayParser;
-typedef INBTArrayParser<Int> NBTIntArrayParser;
-typedef INBTArrayParser<Long> NBTLongArrayParser;
+typedef INBTArrayParser<int8_t> NBTByteArrayParser;
+typedef INBTArrayParser<int32_t> NBTIntArrayParser;
+typedef INBTArrayParser<int64_t> NBTLongArrayParser;
 // typedef INBTArrayParser<List *> NBTListParser;
 
 } // namespace minecraft::nbt

@@ -105,9 +105,8 @@ protected:
        * @param strm the stream to read from
        * @param N the number of bytes in the stream
        * @return a parse result, SUCCESS if parsing finished properly,
-       UNFINISHED if
-       * parsing has not been completed due to lack of data and FAILED
-       otherwise
+       UNFINISHED if parsing has not been completed due to lack of data and
+     FAILED otherwise
        */
   ParseResult read_name(NBT_STREAM_STD_ARGS, NBTType *dest);
 
@@ -117,8 +116,7 @@ protected:
    * @param strm the stream to read from
    * @param N the number of bytes in the stream
    * @return a parse result, SUCCESS if parsing finished properly,
-   UNFINISHED if
-   * parsing has not been completed due to lack of data and FAILED
+   UNFINISHED if parsing has not been completed due to lack of data and FAILED
    otherwise
    */
   ParseResult read_name_size(NBT_STREAM_STD_ARGS, NBTType *dest);
@@ -140,8 +138,7 @@ protected:
    * @param N the number of bytes in the stream
    * @param tag for testing the tag
    * @return a parse result, SUCCESS if parsing finished properly,
-   UNFINISHED if
-   * parsing has not been completed due to lack of data and FAILED
+   UNFINISHED if parsing has not been completed due to lack of data and FAILED
    otherwise
    */
   ParseResult parse_type_header(NBT_STREAM_STD_ARGS, NBTTags::Tags tag,

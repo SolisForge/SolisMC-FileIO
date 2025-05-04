@@ -187,7 +187,7 @@ ParseResult NBTStringParser::parse_payload(_NBT_STREAM_STRM_ARGS) {
  * @brief Parse an byte for the byte array
  */
 template <> ParseResult NBTByteArrayParser::parse_item(_NBT_STREAM_STRM_ARGS) {
-  if (auto ret = read(strm, N, parsing_val.val); ret != ParseResult::SUCCESS)
+  if (auto ret = read(strm, N, parsing_val); ret != ParseResult::SUCCESS)
     return ret;
   return ParseResult::SUCCESS;
 }
@@ -196,7 +196,7 @@ template <> ParseResult NBTByteArrayParser::parse_item(_NBT_STREAM_STRM_ARGS) {
  * @brief Parse an int for the int array
  */
 template <> ParseResult NBTIntArrayParser::parse_item(_NBT_STREAM_STRM_ARGS) {
-  if (auto ret = read(strm, N, parsing_val.val); ret != ParseResult::SUCCESS)
+  if (auto ret = read(strm, N, parsing_val); ret != ParseResult::SUCCESS)
     return ret;
   return ParseResult::SUCCESS;
 }
@@ -205,7 +205,7 @@ template <> ParseResult NBTIntArrayParser::parse_item(_NBT_STREAM_STRM_ARGS) {
  * @brief Parse an long for the long array
  */
 template <> ParseResult NBTLongArrayParser::parse_item(_NBT_STREAM_STRM_ARGS) {
-  if (auto ret = read(strm, N, parsing_val.val); ret != ParseResult::SUCCESS)
+  if (auto ret = read(strm, N, parsing_val); ret != ParseResult::SUCCESS)
     return ret;
   return ParseResult::SUCCESS;
 }

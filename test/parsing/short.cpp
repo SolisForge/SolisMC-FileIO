@@ -1,6 +1,7 @@
 #include <cstring>
 #include <doctest.h>
 #include <minecraft/nbt/io/parser_primitives.hpp>
+#include <minecraft/nbt/tests/tests.hpp>
 
 using namespace minecraft::nbt;
 
@@ -11,13 +12,7 @@ TEST_CASE("nbt::Short parsing") {
   size_t N;
 
   // Expected
-  struct Expected {
-    ParseResult result;
-    size_t name_size;
-    const char *name;
-    int16_t value;
-  };
-  Expected exp;
+  Expected<Short> exp;
 
   // Define subcases
   SUBCASE("Expected") {
@@ -25,8 +20,8 @@ TEST_CASE("nbt::Short parsing") {
         NBTTags::Tags::Short, '\x05',         '\x00', 'S', 'h', 'o', 'r', 't',
         (uint8_t)'\x80',      (uint8_t)'\x01'};
     N = 10;
-    exp = Expected{ParseResult::SUCCESS, 5, "Short",
-                   solis::FROM_BIG_ENDIAN<int16_t>(0x8001)};
+    exp = Expected<Short>{ParseResult::SUCCESS, 5, "Short",
+                          solis::FROM_BIG_ENDIAN<int16_t>(0x8001)};
   }
   SUBCASE("Too much") {
     bytes = new uint8_t[12]{NBTTags::Tags::Short,
@@ -42,25 +37,20 @@ TEST_CASE("nbt::Short parsing") {
                             '\x02',
                             '\x03'};
     N = 12;
-    exp = Expected{ParseResult::SUCCESS, 5, "Hello",
-                   solis::FROM_BIG_ENDIAN<int16_t>(0x1285)};
+    exp = Expected<Short>{ParseResult::SUCCESS, 5, "Hello",
+                          solis::FROM_BIG_ENDIAN<int16_t>(0x1285)};
   }
   SUBCASE("Not enough") {
     bytes = new uint8_t[6]{NBTTags::Tags::Short, '\x05', '\x00', 'T', 'e', 's'};
     N = 6;
-    exp = Expected{ParseResult::UNFINISHED, 5, "Tes", 0x00};
+    exp = Expected<Short>{ParseResult::UNFINISHED, 5, "Tes", 0x00};
   }
 
   // Test the case
   uint8_t *p = bytes;
   auto ret = parser.parse(&p, N);
   auto b = parser.getParsed();
-
-  CHECK(ret == exp.result);
-  CHECK(b->getNameSize() == exp.name_size);
-  CHECK(strncmp(b->getName(), exp.name, b->getNameSize()) == 0);
-  CHECK(b->val == exp.value);
-
+  exp.compare_to(ret, b);
   if (bytes != nullptr)
     delete bytes;
   delete b;
