@@ -27,14 +27,14 @@ namespace minecraft::nbt {
  */
 template <typename T> struct IntegralParser : _IParser {
 
-  ParseResult::E parse(char **strm, unsigned long &N) override {
+  ParseResult::E parse(uint8_t *&strm, unsigned long &N) override {
     NBT_PARSE_N_BYTE_BEGIN()
 #if _CMAKE_ENDIANNESS == 1
     value_ += ((T)(*strm)[0]);
     if (n_bytes < TYPE_SIZE - 1)
       value_ = value_ << BIT_PER_BYTE;
 #else
-    value_ += (T)((T)(*strm)[0]) << n_bytes * BIT_PER_BYTES;
+    value_ += (T)(strm[0]) << n_bytes * BIT_PER_BYTES;
 #endif
     NBT_PARSE_N_BYTE_END(n_bytes, TYPE_SIZE);
     return ParseResult::SUCCESS;

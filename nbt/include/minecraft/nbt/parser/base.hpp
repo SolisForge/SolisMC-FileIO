@@ -66,15 +66,16 @@ struct _IParser {
    * @param buffer the buffer to read the value from
    * @param N the number of bytes left in the buffer
    */
-  virtual ParseResult::E parse(char **strm, unsigned long &N) = 0;
+  virtual ParseResult::E parse(uint8_t *&strm, unsigned long &N) = 0;
 
   /**
    * @brief Reset the parser for a new usage
    */
   virtual void reset() = 0;
 
-  static void inc_stream(char **strm, unsigned long &N, unsigned int inc = 1) {
-    (*strm) += inc;
+  static void inc_stream(uint8_t *&strm, unsigned long &N,
+                         unsigned int inc = 1) {
+    strm += inc;
     N -= inc;
   }
 };
