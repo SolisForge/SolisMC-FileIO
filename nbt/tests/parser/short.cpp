@@ -15,8 +15,8 @@
 #include <doctest/doctest.h>
 
 // Test resources
-#include <common.hpp>
-#include <integrals.hpp>
+#include <solismc/tests/nbt/common.hpp>
+#include <solismc/tests/nbt/integrals.hpp>
 
 using namespace minecraft::nbt;
 

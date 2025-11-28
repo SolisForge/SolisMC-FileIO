@@ -13,8 +13,8 @@
 #ifndef SOLIS_MC_NBT_INTEGRALS_TEST_SET_HPP
 #define SOLIS_MC_NBT_INTEGRALS_TEST_SET_HPP
 
-#include <common.hpp>
 #include <cstdint>
+#include <solismc/tests/nbt/common.hpp>
 
 /**
  * @brief Structure to represent a stream based on a combination of several
@@ -71,7 +71,7 @@ MK_SHORT(SHORT_4, BYTE_4, BYTE_1);
 
 // Define short streams to parse
 constexpr auto ONE_SHORT = solis::NBTstream(SHORT_1);
-constexpr auto TWO_SHORT = solis::NBTstream(SHORT_1) + SHORT_2;
+constexpr auto TWO_SHORT = ONE_SHORT + SHORT_2;
 constexpr auto INCOMPLETE_THREE_SHORTS = TWO_SHORT + BYTE_3;
 constexpr auto NEGATIVE_SHORT = solis::NBTstream(SHORT_2);
 
@@ -90,5 +90,11 @@ MK_INT(INT_24, SHORT_2, SHORT_4)
 MK_INT(INT_34, SHORT_3, SHORT_4)
 
 #undef MK_INT
+
+// Define int streams to parse
+constexpr auto ONE_INT = solis::NBTstream(INT_23);
+constexpr auto TWO_INT = ONE_INT + INT_34;
+constexpr auto INCOMPLETE_THREE_INTS = TWO_INT + BYTE_3;
+constexpr auto NEGATIVE_INT = solis::NBTstream(INT_12);
 
 #endif
