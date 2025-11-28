@@ -33,7 +33,7 @@ struct IntegralValue : solis::NBTValue<T, Bytes...> {
 
 private:
   static constexpr T _get_value(std::size_t i, uint8_t val) {
-    return val << (8 * i);
+    return ((uint64_t)val) << (8 * i);
   }
 
   template <typename... Args>
@@ -82,19 +82,35 @@ constexpr auto NEGATIVE_SHORT = solis::NBTstream(SHORT_2);
   [[maybe_unused]] constexpr auto name =                                       \
       solis::Combined<int32_t>(short1, short2);
 
-MK_INT(INT_12, SHORT_1, SHORT_2)
-MK_INT(INT_13, SHORT_1, SHORT_3)
-MK_INT(INT_14, SHORT_1, SHORT_4)
-MK_INT(INT_23, SHORT_2, SHORT_3)
-MK_INT(INT_24, SHORT_2, SHORT_4)
-MK_INT(INT_34, SHORT_3, SHORT_4)
+MK_INT(INT_1, SHORT_1, SHORT_2)
+MK_INT(INT_2, SHORT_1, SHORT_3)
+MK_INT(INT_3, SHORT_3, SHORT_4)
 
 #undef MK_INT
 
 // Define int streams to parse
-constexpr auto ONE_INT = solis::NBTstream(INT_23);
-constexpr auto TWO_INT = ONE_INT + INT_34;
+constexpr auto ONE_INT = solis::NBTstream(INT_2);
+constexpr auto TWO_INT = ONE_INT + INT_3;
 constexpr auto INCOMPLETE_THREE_INTS = TWO_INT + BYTE_3;
-constexpr auto NEGATIVE_INT = solis::NBTstream(INT_12);
+constexpr auto NEGATIVE_INT = solis::NBTstream(INT_1);
+
+// ==========================================================================
+// Long
+// ==========================================================================
+#define MK_LONG(name, int1, int2)                                              \
+  [[maybe_unused]] constexpr auto LONG_##name =                                \
+      solis::Combined<int64_t>(int1, int2);
+
+MK_LONG(1, INT_1, INT_2)
+MK_LONG(2, INT_2, INT_1)
+MK_LONG(3, INT_1, INT_3)
+
+#undef MK_LONG
+
+// Define int streams to parse
+constexpr auto ONE_LONG = solis::NBTstream(LONG_1);
+constexpr auto TWO_LONG = ONE_LONG + LONG_3;
+constexpr auto INCOMPLETE_THREE_LONGS = TWO_LONG + BYTE_3;
+constexpr auto NEGATIVE_LONG = solis::NBTstream(LONG_2);
 
 #endif

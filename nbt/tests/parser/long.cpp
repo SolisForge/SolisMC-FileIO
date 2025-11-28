@@ -1,7 +1,7 @@
 // ============================================================================
 // Project: SOLISMC_FILEIO
 //
-// Unittests for NBT::Int byte parsing.
+// Unittests for NBT::Long byte parsing.
 //
 // Author    Meltwin (github@meltwin.fr)
 // Date      20/11/2025 (created 20/11/2025)
@@ -18,28 +18,28 @@
 using namespace minecraft::nbt;
 
 // ============================================================================
-TEST_CASE("BytesParser<NBT::Int>") {
+TEST_CASE("BytesParser<NBT::Long>") {
 
-  BytesParser<Tags::Int> parser;
+  BytesParser<Tags::Long> parser;
 
   // --------------------------------------------------------------------------
-  SUBCASE("[ONE_INT] Normal case") {
+  SUBCASE("[ONE_LONG] Normal case") {
     parser.reset();
 
-    uint8_t *p = (uint8_t *)(ONE_INT.STREAM);
-    unsigned long n = ONE_INT.STREAM_LENGTH;
+    uint8_t *p = (uint8_t *)(ONE_LONG.STREAM);
+    unsigned long n = ONE_LONG.STREAM_LENGTH;
     auto ret = parser.parse(p, n);
 
     CHECK_EQ(ret, ParseResult::SUCCESS);
-    CHECK_EQ(parser.get(), INT_2.value);
+    CHECK_EQ(parser.get(), LONG_1.value);
     CHECK_EQ(n, 0);
   }
   // --------------------------------------------------------------------------
-  SUBCASE("[TWO_INT] Several readings") {
+  SUBCASE("[TWO_LONG] Several readings") {
     // Base input buffer
-    uint8_t *p = (uint8_t *)(TWO_INT.STREAM);
-    unsigned long n = TWO_INT.STREAM_LENGTH;
-    const auto N = TWO_INT.STREAM_LENGTH;
+    uint8_t *p = (uint8_t *)(TWO_LONG.STREAM);
+    unsigned long n = TWO_LONG.STREAM_LENGTH;
+    const auto N = TWO_LONG.STREAM_LENGTH;
 
     // First reading
     {
@@ -47,8 +47,8 @@ TEST_CASE("BytesParser<NBT::Int>") {
       auto ret = parser.parse(p, n);
 
       CHECK_EQ(ret, ParseResult::SUCCESS);
-      CHECK_EQ(parser.get(), INT_2.value);
-      CHECK_EQ(n, N - sizeof(int32_t));
+      CHECK_EQ(parser.get(), LONG_1.value);
+      CHECK_EQ(n, N - sizeof(int64_t));
     }
 
     // Second reading
@@ -57,16 +57,16 @@ TEST_CASE("BytesParser<NBT::Int>") {
       auto ret = parser.parse(p, n);
 
       CHECK_EQ(ret, ParseResult::SUCCESS);
-      CHECK_EQ(parser.get(), INT_3.value);
+      CHECK_EQ(parser.get(), LONG_3.value);
       CHECK_EQ(n, 0);
     }
   }
   // --------------------------------------------------------------------------
-  SUBCASE("[INCOMPLETE_THREE_INTS] Not enough bytes") {
+  SUBCASE("[INCOMPLETE_THREE_LONGS] Not enough bytes") {
     // Base input buffer
-    uint8_t *p = (uint8_t *)(INCOMPLETE_THREE_INTS.STREAM);
-    auto n = INCOMPLETE_THREE_INTS.STREAM_LENGTH;
-    const auto N = INCOMPLETE_THREE_INTS.STREAM_LENGTH;
+    uint8_t *p = (uint8_t *)(INCOMPLETE_THREE_LONGS.STREAM);
+    auto n = INCOMPLETE_THREE_LONGS.STREAM_LENGTH;
+    const auto N = INCOMPLETE_THREE_LONGS.STREAM_LENGTH;
 
     // First reading
     {
@@ -74,8 +74,8 @@ TEST_CASE("BytesParser<NBT::Int>") {
       auto ret = parser.parse(p, n);
 
       CHECK_EQ(ret, ParseResult::SUCCESS);
-      CHECK_EQ(parser.get(), INT_2.value);
-      CHECK_EQ(n, N - sizeof(int32_t));
+      CHECK_EQ(parser.get(), LONG_1.value);
+      CHECK_EQ(n, N - sizeof(int64_t));
     }
 
     // Second reading
@@ -84,8 +84,8 @@ TEST_CASE("BytesParser<NBT::Int>") {
       auto ret = parser.parse(p, n);
 
       CHECK_EQ(ret, ParseResult::SUCCESS);
-      CHECK_EQ(parser.get(), INT_3.value);
-      CHECK_EQ(n, N - 2 * sizeof(int32_t));
+      CHECK_EQ(parser.get(), LONG_3.value);
+      CHECK_EQ(n, N - 2 * sizeof(int64_t));
     }
 
     // Second reading
@@ -99,17 +99,17 @@ TEST_CASE("BytesParser<NBT::Int>") {
     }
   }
   // --------------------------------------------------------------------------
-  SUBCASE("[NEGATIVE_INT] Parse of byte of negative value") {
+  SUBCASE("[NEGATIVE_LONG] Parse of byte of negative value") {
 
-    uint8_t *p = (uint8_t *)(NEGATIVE_INT.STREAM);
-    auto n = NEGATIVE_INT.STREAM_LENGTH;
+    uint8_t *p = (uint8_t *)(NEGATIVE_LONG.STREAM);
+    auto n = NEGATIVE_LONG.STREAM_LENGTH;
 
     parser.reset();
     auto ret = parser.parse(p, n);
 
     CHECK_EQ(ret, ParseResult::SUCCESS);
     CHECK_LT(parser.get(), 0);
-    CHECK_EQ(parser.get(), INT_1.value);
+    CHECK_EQ(parser.get(), LONG_2.value);
     CHECK_EQ(n, 0);
   }
 }
