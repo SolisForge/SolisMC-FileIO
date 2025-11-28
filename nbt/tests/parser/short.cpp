@@ -14,6 +14,10 @@
 #include <cstdint>
 #include <doctest/doctest.h>
 
+// Test resources
+#include <common.hpp>
+#include <integrals.hpp>
+
 using namespace minecraft::nbt;
 
 // ============================================================================
@@ -22,62 +26,57 @@ TEST_CASE("BytesParser<NBT::Short>") {
   BytesParser<Tags::Short> parser;
 
   // --------------------------------------------------------------------------
-  SUBCASE("Normal case") {
-    int8_t input[2]{'\x16', '\x59'};
-    unsigned long N = 2;
+  SUBCASE("[ONE_SHORT] Normal case") {
     parser.reset();
 
-    uint8_t *p = reinterpret_cast<uint8_t *>(input);
-    unsigned long n = N;
+    uint8_t *p = (uint8_t *)(ONE_SHORT.STREAM);
+    unsigned long n = ONE_SHORT.STREAM_LENGTH;
     auto ret = parser.parse(p, n);
 
     CHECK_EQ(ret, ParseResult::SUCCESS);
-    CHECK_EQ(parser.get(), 0x5916);
+    CHECK_EQ(parser.get(), SHORT_1.value);
     CHECK_EQ(n, 0);
   }
   // --------------------------------------------------------------------------
-  SUBCASE("Bytes greater than max signed short value") {
-    char input[2]{'\x00', '\x90'};
-    unsigned long N = 2;
-    parser.reset();
-
-    uint8_t *p = reinterpret_cast<unsigned char *>(&input);
-    unsigned long n = N;
-    auto ret = parser.parse(p, n);
-
-    CHECK_EQ(ret, ParseResult::SUCCESS);
-    CHECK_EQ(parser.get(), static_cast<int16_t>(0x9000));
-    CHECK_EQ(n, 0);
-  }
-  // --------------------------------------------------------------------------
-  SUBCASE("Not enough bytes") {
-    char input[1]{'\x16'};
-    unsigned long N = 1;
-    parser.reset();
-
-    uint8_t *p = reinterpret_cast<unsigned char *>(&input);
-    unsigned long n = N;
-    auto ret = parser.parse(p, n);
-
-    CHECK_EQ(ret, ParseResult::UNFINISHED);
-    CHECK_EQ(parser.get(), 0x0016);
-    CHECK_EQ(n, 0);
-  }
-  // --------------------------------------------------------------------------
-  SUBCASE("Several readings") {
+  SUBCASE("[TWO_SHORT] Several readings") {
     // Base input buffer
-    char input[5]{'\x16', '\x59', '\x32', '\x17', '\x84'};
-    unsigned long N = 5;
+    uint8_t *p = (uint8_t *)(TWO_SHORT.STREAM);
+    unsigned long n = TWO_SHORT.STREAM_LENGTH;
 
     // First reading
-    uint8_t *p = reinterpret_cast<unsigned char *>(&input);
-    unsigned long n = N;
     {
       parser.reset();
       auto ret = parser.parse(p, n);
 
       CHECK_EQ(ret, ParseResult::SUCCESS);
-      CHECK_EQ(parser.get(), 0x5916);
+      CHECK_EQ(parser.get(), SHORT_1.value);
+      CHECK_EQ(n, TWO_SHORT.STREAM_LENGTH - 2);
+    }
+
+    // Second reading
+    {
+      parser.reset();
+      auto ret = parser.parse(p, n);
+
+      CHECK_EQ(ret, ParseResult::SUCCESS);
+      CHECK_EQ(parser.get(), SHORT_2.value);
+      CHECK_EQ(n, TWO_SHORT.STREAM_LENGTH - 4);
+    }
+  }
+  // --------------------------------------------------------------------------
+  SUBCASE("[INCOMPLETE_THREE_SHORTS] Not enough bytes") {
+    // Base input buffer
+    uint8_t *p = (uint8_t *)(INCOMPLETE_THREE_SHORTS.STREAM);
+    auto n = INCOMPLETE_THREE_SHORTS.STREAM_LENGTH;
+    const auto N = INCOMPLETE_THREE_SHORTS.STREAM_LENGTH;
+
+    // First reading
+    {
+      parser.reset();
+      auto ret = parser.parse(p, n);
+
+      CHECK_EQ(ret, ParseResult::SUCCESS);
+      CHECK_EQ(parser.get(), SHORT_1.value);
       CHECK_EQ(n, N - 2);
     }
 
@@ -87,18 +86,32 @@ TEST_CASE("BytesParser<NBT::Short>") {
       auto ret = parser.parse(p, n);
 
       CHECK_EQ(ret, ParseResult::SUCCESS);
-      CHECK_EQ(parser.get(), 0x1732);
-      CHECK_EQ(n, 1);
+      CHECK_EQ(parser.get(), SHORT_2.value);
+      CHECK_EQ(n, N - 4);
     }
 
-    // Third reading
+    // Second reading
     {
       parser.reset();
       auto ret = parser.parse(p, n);
 
       CHECK_EQ(ret, ParseResult::UNFINISHED);
-      CHECK_EQ(parser.get(), static_cast<int16_t>(0x0084));
+      CHECK_EQ(parser.get(), BYTE_3.value);
       CHECK_EQ(n, 0);
     }
+  }
+  // --------------------------------------------------------------------------
+  SUBCASE("[NEGATIVE_SHORT] Parse of byte of negative value") {
+
+    uint8_t *p = (uint8_t *)(NEGATIVE_SHORT.STREAM);
+    auto n = NEGATIVE_SHORT.STREAM_LENGTH;
+
+    parser.reset();
+    auto ret = parser.parse(p, n);
+
+    CHECK_EQ(ret, ParseResult::SUCCESS);
+    CHECK_LT(parser.get(), 0);
+    CHECK_EQ(parser.get(), SHORT_2.value);
+    CHECK_EQ(n, 0);
   }
 }
