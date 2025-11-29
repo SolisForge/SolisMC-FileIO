@@ -17,10 +17,10 @@
 #include <solismc/tests/nbt/common.hpp>
 
 /**
- * @brief Structure to represent a stream based on a combination of several
+ * @brief Structure to represent the bytes representation of an integral value.
  *
- * @tparam T the output typename
- * @tparam Bytes
+ * @tparam T the output type
+ * @tparam Bytes... the bytes representation (big-endian)
  */
 template <typename T, uint8_t... Bytes>
 struct IntegralValue : solis::NBTValue<T, Bytes...> {

@@ -90,7 +90,7 @@ TEST_CASE("BytesParser<NBT::Short>") {
       CHECK_EQ(n, N - 4);
     }
 
-    // Second reading
+    // Third reading
     {
       parser.reset();
       auto ret = parser.parse(p, n);

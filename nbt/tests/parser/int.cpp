@@ -88,7 +88,7 @@ TEST_CASE("BytesParser<NBT::Int>") {
       CHECK_EQ(n, N - 2 * sizeof(int32_t));
     }
 
-    // Second reading
+    // Third reading
     {
       parser.reset();
       auto ret = parser.parse(p, n);
