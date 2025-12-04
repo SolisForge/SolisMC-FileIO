@@ -12,6 +12,7 @@
 #ifndef SOLISMC_NBT_TYPES_BASE_HPP
 #define SOLISMC_NBT_TYPES_BASE_HPP
 
+#include <cstdint>
 #include <stdexcept>
 
 namespace minecraft::nbt {
