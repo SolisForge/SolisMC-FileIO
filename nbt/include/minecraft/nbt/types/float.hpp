@@ -16,8 +16,8 @@
 
 namespace minecraft::nbt {
 
-template <> inline constexpr Tags::E getTag<float>() { return Tags::Float; }
-template <> inline constexpr Tags::E getTag<double>() { return Tags::Double; }
+template <> constexpr Tags::E getTag<float>() { return Tags::Float; }
+template <> constexpr Tags::E getTag<double>() { return Tags::Double; }
 
 } // namespace minecraft::nbt
 

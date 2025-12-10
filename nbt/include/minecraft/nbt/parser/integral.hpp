@@ -14,9 +14,7 @@
 
 #include "minecraft/nbt/parser/base.hpp"
 #include "minecraft/nbt/types/base.hpp"
-#include "minecraft/nbt/types/integral.hpp"
 #include <cstdint>
-#include <iostream>
 
 namespace minecraft::nbt {
 
@@ -27,7 +25,7 @@ namespace minecraft::nbt {
  */
 template <typename T> struct IntegralParser : _IParser {
 
-  ParseResult::E parse(uint8_t *&strm, unsigned long &N) override {
+  ParseResult parse(const uint8_t *&strm, unsigned long &N) override {
     NBT_PARSE_N_BYTE_BEGIN()
 #if _CMAKE_ENDIANNESS == 1
     value_ += ((T)(*strm)[0]);
@@ -50,7 +48,7 @@ template <typename T> struct IntegralParser : _IParser {
     n_bytes = 0;
   }
 
-protected:
+private:
   T value_;
   size_t n_bytes = 0;
   const size_t TYPE_SIZE = sizeof(T);

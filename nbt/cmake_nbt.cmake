@@ -4,7 +4,7 @@
 # This file contains the CMake definitions of NBT-related targets & tests.
 # 
 # Author    Meltwin (github@meltwin.fr)
-# Date      26/11/2025 (created 13/11/2025)
+# Date      10/12/2025 (created 04/12/2025)
 # Version   1.0.0
 # Copyright Solis Forge | 2025 
 #           Distributed under MIT License (https://opensource.org/licenses/MIT)
@@ -26,8 +26,7 @@ endif()
 add_solis_library(
     nbt_test_resources
     PUBLIC_HEADER "nbt/tests/resources"
-    HEADER_BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/nbt/tests/resources"
-    HEADER_DIR "solismc/tests/nbt"
+    HEADER_BASE_DIR "nbt/tests/resources"
     NAMESPACE solismc
 )
 
@@ -35,3 +34,5 @@ add_solis_executable( test_parse
     DIRECTORIES "nbt/tests/parser"
     DEPENDS nbt nbt_test_resources solis_external::doctest
 )
+
+add_test(NAME test_nbt_parse COMMAND test_parse)

@@ -33,7 +33,7 @@ struct FloatingPointParser : _IParser {
   static_assert(sizeof(T) == sizeof(BufferType),
                 "The buffer type should be of same size as the float type");
 
-  ParseResult::E parse(uint8_t *&strm, unsigned long &N) override {
+  ParseResult parse(const uint8_t *&strm, unsigned long &N) override {
     // Parse the floating point as an integral type
     if (auto ret = int_buffer_.parse(strm, N); ret != ParseResult::SUCCESS)
       return ret;
@@ -53,7 +53,7 @@ struct FloatingPointParser : _IParser {
   // --------------------------------------------------------------------------
   // Internal members
   // --------------------------------------------------------------------------
-protected:
+private:
   T value_;
   IntegralParser<BufferType> int_buffer_;
 };

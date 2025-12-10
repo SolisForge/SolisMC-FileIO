@@ -17,64 +17,62 @@
 
 namespace minecraft::nbt {
 
-typedef uint8_t TagID_t;
+using TagID_t = uint8_t;
 
 /**
  * @brief NBT tags byte values
  */
-struct Tags {
-  enum E : TagID_t {
-    // Primitives
-    Byte = 1,
-    Short = 2,
-    Int = 3,
-    Long = 4,
-    Float = 5,
-    Double = 6,
-    String = 8,
+enum class Tags : TagID_t {
+  // Primitives
+  Byte = 1,
+  Short = 2,
+  Int = 3,
+  Long = 4,
+  Float = 5,
+  Double = 6,
+  String = 8,
 
-    // Array
-    ByteArray = 7,
-    List = 9,
-    IntArray = 11,
-    LongArray = 12,
+  // Array
+  ByteArray = 7,
+  List = 9,
+  IntArray = 11,
+  LongArray = 12,
 
-    // Special
-    Compound = 10,
-    END = 0,
-    ERROR = 255,
+  // Special
+  Compound = 10,
+  END = 0,
+  ERROR = 255,
 
-    // Special tag for defined NBT objects (e.g. level metadata, ...)
-    Object = Compound,
-  };
+  // Special tag for defined NBT objects (e.g. level metadata, ...)
+  Object = Compound,
+};
 
-  static constexpr const char *getName(Tags::E tag) {
-    // Macro to easily generate all the conversions
+static constexpr const char *getName(Tags tag) {
+  // Macro to easily generate all the conversions
 #define MK_CASE(type)                                                          \
-  case Tags::E::type:                                                          \
+  case Tags::type:                                                             \
     return #type
 
-    // Construct
-    switch (tag) {
-      MK_CASE(END);
-      MK_CASE(Byte);
-      MK_CASE(Short);
-      MK_CASE(Int);
-      MK_CASE(Long);
-      MK_CASE(Float);
-      MK_CASE(Double);
-      MK_CASE(String);
-      MK_CASE(ByteArray);
-      MK_CASE(List);
-      MK_CASE(IntArray);
-      MK_CASE(LongArray);
-      MK_CASE(Compound);
-      MK_CASE(ERROR);
-    }
+  // Construct
+  switch (tag) {
+    MK_CASE(END);
+    MK_CASE(Byte);
+    MK_CASE(Short);
+    MK_CASE(Int);
+    MK_CASE(Long);
+    MK_CASE(Float);
+    MK_CASE(Double);
+    MK_CASE(String);
+    MK_CASE(ByteArray);
+    MK_CASE(List);
+    MK_CASE(IntArray);
+    MK_CASE(LongArray);
+    MK_CASE(Compound);
+    MK_CASE(ERROR);
+  }
 
 #undef MK_CASE
-  }
-};
+}
 
 // ============================================================================
 
@@ -83,9 +81,9 @@ struct Tags {
  * @tparam T      the STD type representation for this tag
  * @tparam NBTTag the associated NBT tag
  */
-template <typename T, Tags::E NBTTag> struct NBTTypeInfo {
+template <typename T, Tags NBTTag> struct NBTTypeInfo {
   using type = T;
-  constexpr inline Tags::E tag() { return NBTTag; }
+  constexpr Tags tag() const { return NBTTag; }
 };
 
 // ============================================================================
@@ -96,7 +94,7 @@ template <typename T, Tags::E NBTTag> struct NBTTypeInfo {
  * @tparam T
  * @return constexpr Tags::E
  */
-template <typename T> inline constexpr Tags::E getTag() {
+template <typename T> constexpr Tags getTag() {
   throw std::runtime_error("Trying to get tag of unregistered type");
   return Tags::ERROR;
 }

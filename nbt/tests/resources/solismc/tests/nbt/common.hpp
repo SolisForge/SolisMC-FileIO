@@ -13,7 +13,6 @@
 #define SOLIS_MC_NBT_TEST_COMMON_HPP
 
 #include <cstdint>
-#include <type_traits>
 
 namespace solis {
 
@@ -35,7 +34,7 @@ template <typename T, uint8_t... Bytes> struct NBTValue {
 
   static constexpr uint8_t STREAM[N]{Bytes...};
 
-  constexpr NBTValue<T, Bytes...>(T value) : value(value) {}
+  explicit constexpr NBTValue<T, Bytes...>(T value) : value(value) {}
 
   T value;
 };

@@ -27,32 +27,28 @@ namespace minecraft::nbt {
  *  - UNFINISHED when the parser is missing some bytes
  *  - FAILED when something went wrong and the parser can't finish
  */
-struct ParseResult {
-  enum E : uint8_t { SUCCESS, UNFINISHED, FAILED };
+enum class ParseResult : uint8_t { SUCCESS, UNFINISHED, FAILED };
 
-  // --------------------------------------------------------------------------
-
-  /**
-   * @brief Get the name of the given result as a const char*
-   */
-  static constexpr const char *getName(ParseResult::E tag) {
-    // Macro to easily generate all the conversions
+/**
+ * @brief Get the name of the given result as a const char*
+ */
+static constexpr const char *getName(ParseResult tag) {
+  // Macro to easily generate all the conversions
 #define MK_CASE(name)                                                          \
-  case ParseResult::E::name:                                                   \
+  case ParseResult::name:                                                      \
     return #name;
 
-    // Construct
-    switch (tag) {
-      MK_CASE(SUCCESS)
-      MK_CASE(FAILED)
-      MK_CASE(UNFINISHED)
-    default:
-      return "UNKOWN";
-    }
+  // Construct
+  switch (tag) {
+    MK_CASE(SUCCESS)
+    MK_CASE(FAILED)
+    MK_CASE(UNFINISHED)
+  default:
+    return "UNKOWN";
+  }
 
 #undef MK_CASE
-  }
-};
+}
 
 // ============================================================================
 /**
@@ -60,20 +56,22 @@ struct ParseResult {
  */
 struct _IParser {
 
+  virtual ~_IParser() = default;
+
   /**
    * @brief Parse the given buffer to set the value to the NBT type
    *
    * @param buffer the buffer to read the value from
    * @param N the number of bytes left in the buffer
    */
-  virtual ParseResult::E parse(uint8_t *&strm, unsigned long &N) = 0;
+  virtual ParseResult parse(const uint8_t *&strm, unsigned long &N) = 0;
 
   /**
    * @brief Reset the parser for a new usage
    */
   virtual void reset() = 0;
 
-  static void inc_stream(uint8_t *&strm, unsigned long &N,
+  static void inc_stream(const uint8_t *&strm, unsigned long &N,
                          unsigned int inc = 1) {
     strm += inc;
     N -= inc;
@@ -89,7 +87,7 @@ struct _IParser {
  *
  * @tparam TAG
  */
-template <Tags::E TAG> struct BytesParser : _IParser {};
+template <Tags TAG> struct BytesParser : _IParser {};
 
 /**
  * @brief Macro to generate a BytesParser specialization for a tag, given a

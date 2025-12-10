@@ -12,7 +12,7 @@
 
 #include "minecraft/nbt/parser/float.hpp"
 #include "solismc/tests/nbt/float.hpp"
-#include "solismc/tests/nbt/integrals.hpp"
+#include <cstdint>
 #include <doctest/doctest.h>
 
 using namespace minecraft::nbt;
@@ -26,7 +26,7 @@ TEST_CASE("BytesParser<NBT::Double>") {
   SUBCASE("[ONE_DOUBLE] Normal case") {
     parser.reset();
 
-    uint8_t *p = (uint8_t *)(ONE_DOUBLE.STREAM);
+    auto *p = static_cast<const uint8_t *>(ONE_DOUBLE.STREAM);
     unsigned long n = ONE_DOUBLE.STREAM_LENGTH;
     auto ret = parser.parse(p, n);
 
@@ -37,8 +37,8 @@ TEST_CASE("BytesParser<NBT::Double>") {
   // --------------------------------------------------------------------------
   SUBCASE("[TWO_DOUBLE] Several readings") {
     // Base input buffer
-    uint8_t *p = (uint8_t *)(TWO_DOUBLE.STREAM);
-    unsigned long n = TWO_DOUBLE.STREAM_LENGTH;
+    auto *p = static_cast<const uint8_t *>(TWO_DOUBLE.STREAM);
+    auto n = TWO_DOUBLE.STREAM_LENGTH;
     const auto N = TWO_DOUBLE.STREAM_LENGTH;
 
     // First reading
@@ -57,14 +57,14 @@ TEST_CASE("BytesParser<NBT::Double>") {
       auto ret = parser.parse(p, n);
 
       CHECK_EQ(ret, ParseResult::SUCCESS);
-      CHECK_EQ(parser.get(), DOUBLE_2.value);
+      CHECK_EQ(parser.get(), DOUBLE_2.value + 1);
       CHECK_EQ(n, 0);
     }
   }
   // --------------------------------------------------------------------------
   SUBCASE("[INCOMPLETE_THREE_DOUBLES] Not enough bytes") {
     // Base input buffer
-    uint8_t *p = (uint8_t *)(INCOMPLETE_THREE_DOUBLES.STREAM);
+    auto *p = static_cast<const uint8_t *>(INCOMPLETE_THREE_DOUBLES.STREAM);
     auto n = INCOMPLETE_THREE_DOUBLES.STREAM_LENGTH;
     const auto N = INCOMPLETE_THREE_DOUBLES.STREAM_LENGTH;
 

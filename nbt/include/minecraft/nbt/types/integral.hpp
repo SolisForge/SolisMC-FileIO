@@ -14,7 +14,6 @@
 
 #include "minecraft/nbt/types/base.hpp"
 #include <cstdint>
-#include <iostream>
 
 namespace minecraft::nbt {
 

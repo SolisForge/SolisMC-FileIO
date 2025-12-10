@@ -26,7 +26,7 @@
 template <typename T, uint8_t... Bytes>
 struct FloatValue : solis::NBTValue<T, Bytes...> {
 
-  constexpr FloatValue<T, Bytes...>(const T &value)
+  explicit constexpr FloatValue<T, Bytes...>(const T &value)
       : solis::NBTValue<T, Bytes...>(value) {}
 };
 
