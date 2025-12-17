@@ -1,22 +1,23 @@
 // ============================================================================
-// Project: SOLISMC_FILEIO
+// Project: SOLISMC-FILEIO
 //
-// Definition of NBT integral parser (short, int, long, ...)
+//
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      20/11/2025 (created 20/11/2025)
+// Date      11/12/2025 (created 11/12/2025)
 // Version   1.0.0
 // Copyright Solis Forge | 2025
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
-#ifndef SOLISMC_NBT_BYTE_PARSING_INTEGRAL_HPP
-#define SOLISMC_NBT_BYTE_PARSING_INTEGRAL_HPP
+#ifndef SOLISMC_NBT_PARSER_INTEGRAL_HPP
+#define SOLISMC_NBT_PARSER_INTEGRAL_HPP
 
-#include "minecraft/nbt/parser/base.hpp"
-#include "minecraft/nbt/types/base.hpp"
-#include <cstdint>
+#include "minecraft/nbt/parsers/base.hpp"
+#include <iostream>
 
 namespace minecraft::nbt {
+
+// ============================================================================
 
 /**
  * @brief Parser implementation for integral types
@@ -25,15 +26,18 @@ namespace minecraft::nbt {
  */
 template <typename T> struct IntegralParser : _IParser {
 
-  ParseResult parse(const uint8_t *&strm, unsigned long &N) override {
+  ParseResult parse(const StreamChar *&strm, unsigned long &N) override {
     NBT_PARSE_N_BYTE_BEGIN()
+    std::cout << "N_bytes=" << n_bytes << " " << value_ << " + "
+              << static_cast<T>(strm[0]) << " = ";
 #if _CMAKE_ENDIANNESS == 1
     value_ += ((T)(*strm)[0]);
     if (n_bytes < TYPE_SIZE - 1)
       value_ = value_ << BIT_PER_BYTE;
 #else
-    value_ += (T)(strm[0]) << n_bytes * BIT_PER_BYTES;
+    value_ += static_cast<T>(strm[0]) << n_bytes * BIT_PER_BYTES;
 #endif
+    std::cout << value_ << std::endl;
     NBT_PARSE_N_BYTE_END(n_bytes, TYPE_SIZE);
     return ParseResult::SUCCESS;
   }
@@ -55,6 +59,7 @@ private:
 };
 
 // Define parser aliases
+// ============================================================================
 MK_BYTE_PARSER_WRAPPER(Tags::Byte, IntegralParser<int8_t>)
 MK_BYTE_PARSER_WRAPPER(Tags::Short, IntegralParser<int16_t>)
 MK_BYTE_PARSER_WRAPPER(Tags::Int, IntegralParser<int32_t>)

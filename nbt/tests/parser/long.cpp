@@ -10,7 +10,7 @@
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 
-#include "minecraft/nbt/parser/integral.hpp"
+#include "minecraft/nbt/parser.hpp"
 #include <cstdint>
 #include <doctest/doctest.h>
 #include <solismc/tests/nbt/integrals.hpp>
@@ -26,8 +26,8 @@ TEST_CASE("BytesParser<NBT::Long>") {
   SUBCASE("[ONE_LONG] Normal case") {
     parser.reset();
 
-    uint8_t *p = (uint8_t *)(ONE_LONG.STREAM);
-    unsigned long n = ONE_LONG.STREAM_LENGTH;
+    auto *p = static_cast<const StreamChar *>(ONE_LONG.STREAM);
+    auto n = ONE_LONG.STREAM_LENGTH;
     auto ret = parser.parse(p, n);
 
     CHECK_EQ(ret, ParseResult::SUCCESS);
@@ -37,8 +37,8 @@ TEST_CASE("BytesParser<NBT::Long>") {
   // --------------------------------------------------------------------------
   SUBCASE("[TWO_LONG] Several readings") {
     // Base input buffer
-    uint8_t *p = (uint8_t *)(TWO_LONG.STREAM);
-    unsigned long n = TWO_LONG.STREAM_LENGTH;
+    auto *p = static_cast<const StreamChar *>(TWO_LONG.STREAM);
+    auto n = TWO_LONG.STREAM_LENGTH;
     const auto N = TWO_LONG.STREAM_LENGTH;
 
     // First reading
@@ -64,7 +64,7 @@ TEST_CASE("BytesParser<NBT::Long>") {
   // --------------------------------------------------------------------------
   SUBCASE("[INCOMPLETE_THREE_LONGS] Not enough bytes") {
     // Base input buffer
-    uint8_t *p = (uint8_t *)(INCOMPLETE_THREE_LONGS.STREAM);
+    auto *p = static_cast<const StreamChar *>(INCOMPLETE_THREE_LONGS.STREAM);
     auto n = INCOMPLETE_THREE_LONGS.STREAM_LENGTH;
     const auto N = INCOMPLETE_THREE_LONGS.STREAM_LENGTH;
 
@@ -101,7 +101,7 @@ TEST_CASE("BytesParser<NBT::Long>") {
   // --------------------------------------------------------------------------
   SUBCASE("[NEGATIVE_LONG] Parse of byte of negative value") {
 
-    uint8_t *p = (uint8_t *)(NEGATIVE_LONG.STREAM);
+    auto *p = static_cast<const StreamChar *>(NEGATIVE_LONG.STREAM);
     auto n = NEGATIVE_LONG.STREAM_LENGTH;
 
     parser.reset();

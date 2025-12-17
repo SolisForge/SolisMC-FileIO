@@ -23,7 +23,7 @@
  * @tparam T the output type
  * @tparam Bytes... the bytes representation (big-endian)
  */
-template <typename T, uint8_t... Bytes>
+template <typename T, solis::StreamChar... Bytes>
 struct FloatValue : solis::NBTValue<T, Bytes...> {
 
   explicit constexpr FloatValue<T, Bytes...>(const T &value)
@@ -38,7 +38,7 @@ struct FloatValue : solis::NBTValue<T, Bytes...> {
  * @tparam Bytes... the bytes representation (big-endian)
  * @param fval the float value
  */
-template <typename T, typename Ti, uint8_t... Bytes>
+template <typename T, typename Ti, solis::StreamChar... Bytes>
 constexpr FloatValue<T, Bytes...>
 float_from_int(IntegralValue<Ti, Bytes...> ival) {
   static_assert(sizeof(T) == sizeof(Ti),

@@ -13,6 +13,7 @@
 #ifndef SOLIS_MC_NBT_INTEGRALS_TEST_SET_HPP
 #define SOLIS_MC_NBT_INTEGRALS_TEST_SET_HPP
 
+#include "minecraft/nbt/types.hpp"
 #include <cstdint>
 #include <solismc/tests/nbt/common.hpp>
 
@@ -28,16 +29,17 @@ struct IntegralValue : solis::NBTValue<T, Bytes...> {
   constexpr IntegralValue<T, Bytes...>()
       : solis::NBTValue<T, Bytes...>(_get_value(0, Bytes...)) {}
 
-  constexpr IntegralValue<T, Bytes...>(const T &value)
+  explicit constexpr IntegralValue<T, Bytes...>(const T &value)
       : solis::NBTValue<T, Bytes...>(value) {}
 
 private:
-  static constexpr T _get_value(std::size_t i, uint8_t val) {
-    return ((uint64_t)val) << (8 * i);
+  static constexpr T _get_value(std::size_t i, solis::StreamChar val) {
+    return static_cast<T>(static_cast<uint64_t>(val) << (8 * i));
   }
 
   template <typename... Args>
-  static constexpr T _get_value(std::size_t i, uint8_t val, Args... args) {
+  static constexpr T _get_value(std::size_t i, solis::StreamChar val,
+                                Args... args) {
     return _get_value(i, val) + _get_value(i + 1, args...);
   }
 };
@@ -48,10 +50,10 @@ private:
 #define MK_BYTE(name, b1)                                                      \
   [[maybe_unused]] constexpr auto name = IntegralValue<int8_t, b1>();
 
-MK_BYTE(BYTE_1, (uint8_t)'\x19');
-MK_BYTE(BYTE_2, (uint8_t)'\x27');
-MK_BYTE(BYTE_3, (uint8_t)'\x53');
-MK_BYTE(BYTE_4, (uint8_t)'\x89');
+MK_BYTE(BYTE_1, '\x19');
+MK_BYTE(BYTE_2, '\x27');
+MK_BYTE(BYTE_3, '\x53');
+MK_BYTE(BYTE_4, static_cast<solis::StreamChar>('\x89'));
 
 #undef MK_BYTE
 

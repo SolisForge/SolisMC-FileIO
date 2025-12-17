@@ -1,17 +1,18 @@
 // ============================================================================
 // Project: SOLISMC_FILEIO
 //
-//
+// Definition of the bytes -> NBT parser
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      21/11/2025 (created 21/11/2025)
+// Date      19/11/2025 (created 19/11/2025)
 // Version   1.0.0
 // Copyright Solis Forge | 2025
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
-#include "minecraft/nbt/parser/base.hpp"
+#ifndef SOLISMC_NBT_PARSER_HPP
+#define SOLISMC_NBT_PARSER_HPP
 
-namespace minecraft::nbt {
+#include "minecraft/nbt/parsers/float.hpp"
+#include "minecraft/nbt/parsers/integral.hpp"
 
-// ============================================================================
-} // namespace minecraft::nbt
+#endif

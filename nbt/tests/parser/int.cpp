@@ -10,7 +10,7 @@
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 
-#include "minecraft/nbt/parser/integral.hpp"
+#include "minecraft/nbt/parser.hpp"
 #include <cstdint>
 #include <doctest/doctest.h>
 #include <solismc/tests/nbt/integrals.hpp>
@@ -26,8 +26,8 @@ TEST_CASE("BytesParser<NBT::Int>") {
   SUBCASE("[ONE_INT] Normal case") {
     parser.reset();
 
-    uint8_t *p = (uint8_t *)(ONE_INT.STREAM);
-    unsigned long n = ONE_INT.STREAM_LENGTH;
+    auto *p = static_cast<const StreamChar *>(ONE_INT.STREAM);
+    auto n = ONE_INT.STREAM_LENGTH;
     auto ret = parser.parse(p, n);
 
     CHECK_EQ(ret, ParseResult::SUCCESS);
@@ -37,8 +37,8 @@ TEST_CASE("BytesParser<NBT::Int>") {
   // --------------------------------------------------------------------------
   SUBCASE("[TWO_INT] Several readings") {
     // Base input buffer
-    uint8_t *p = (uint8_t *)(TWO_INT.STREAM);
-    unsigned long n = TWO_INT.STREAM_LENGTH;
+    auto *p = static_cast<const StreamChar *>(TWO_INT.STREAM);
+    auto n = TWO_INT.STREAM_LENGTH;
     const auto N = TWO_INT.STREAM_LENGTH;
 
     // First reading
@@ -64,7 +64,7 @@ TEST_CASE("BytesParser<NBT::Int>") {
   // --------------------------------------------------------------------------
   SUBCASE("[INCOMPLETE_THREE_INTS] Not enough bytes") {
     // Base input buffer
-    uint8_t *p = (uint8_t *)(INCOMPLETE_THREE_INTS.STREAM);
+    auto *p = static_cast<const StreamChar *>(INCOMPLETE_THREE_INTS.STREAM);
     auto n = INCOMPLETE_THREE_INTS.STREAM_LENGTH;
     const auto N = INCOMPLETE_THREE_INTS.STREAM_LENGTH;
 
@@ -101,7 +101,7 @@ TEST_CASE("BytesParser<NBT::Int>") {
   // --------------------------------------------------------------------------
   SUBCASE("[NEGATIVE_INT] Parse of byte of negative value") {
 
-    uint8_t *p = (uint8_t *)(NEGATIVE_INT.STREAM);
+    auto *p = static_cast<const StreamChar *>(NEGATIVE_INT.STREAM);
     auto n = NEGATIVE_INT.STREAM_LENGTH;
 
     parser.reset();

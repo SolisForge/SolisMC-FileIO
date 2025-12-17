@@ -10,7 +10,7 @@
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 
-#include "minecraft/nbt/parser/integral.hpp"
+#include "minecraft/nbt/parser.hpp"
 #include <cstdint>
 #include <doctest/doctest.h>
 
@@ -29,8 +29,8 @@ TEST_CASE("BytesParser<NBT::Short>") {
   SUBCASE("[ONE_SHORT] Normal case") {
     parser.reset();
 
-    uint8_t *p = (uint8_t *)(ONE_SHORT.STREAM);
-    unsigned long n = ONE_SHORT.STREAM_LENGTH;
+    auto *p = static_cast<const StreamChar *>(ONE_SHORT.STREAM);
+    auto n = ONE_SHORT.STREAM_LENGTH;
     auto ret = parser.parse(p, n);
 
     CHECK_EQ(ret, ParseResult::SUCCESS);
@@ -40,8 +40,8 @@ TEST_CASE("BytesParser<NBT::Short>") {
   // --------------------------------------------------------------------------
   SUBCASE("[TWO_SHORT] Several readings") {
     // Base input buffer
-    uint8_t *p = (uint8_t *)(TWO_SHORT.STREAM);
-    unsigned long n = TWO_SHORT.STREAM_LENGTH;
+    auto *p = static_cast<const StreamChar *>(TWO_SHORT.STREAM);
+    auto n = TWO_SHORT.STREAM_LENGTH;
 
     // First reading
     {
@@ -66,7 +66,7 @@ TEST_CASE("BytesParser<NBT::Short>") {
   // --------------------------------------------------------------------------
   SUBCASE("[INCOMPLETE_THREE_SHORTS] Not enough bytes") {
     // Base input buffer
-    uint8_t *p = (uint8_t *)(INCOMPLETE_THREE_SHORTS.STREAM);
+    auto *p = static_cast<const StreamChar *>(INCOMPLETE_THREE_SHORTS.STREAM);
     auto n = INCOMPLETE_THREE_SHORTS.STREAM_LENGTH;
     const auto N = INCOMPLETE_THREE_SHORTS.STREAM_LENGTH;
 
@@ -103,7 +103,7 @@ TEST_CASE("BytesParser<NBT::Short>") {
   // --------------------------------------------------------------------------
   SUBCASE("[NEGATIVE_SHORT] Parse of byte of negative value") {
 
-    uint8_t *p = (uint8_t *)(NEGATIVE_SHORT.STREAM);
+    auto *p = static_cast<const StreamChar *>(NEGATIVE_SHORT.STREAM);
     auto n = NEGATIVE_SHORT.STREAM_LENGTH;
 
     parser.reset();

@@ -1,19 +1,18 @@
 // ============================================================================
-// Project: SOLISMC_FILEIO
+// Project: SOLISMC-FILEIO
 //
-// Definition of the bytes -> NBT parser
+//
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      19/11/2025 (created 19/11/2025)
+// Date      11/12/2025 (created 11/12/2025)
 // Version   1.0.0
 // Copyright Solis Forge | 2025
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
-#ifndef SOLISMC_NBT_PARSER_HPP
-#define SOLISMC_NBT_PARSER_HPP
+#ifndef SOLISMC_NBT_PARSER_BASE_HPP
+#define SOLISMC_NBT_PARSER_BASE_HPP
 
-#include "minecraft/nbt/types/base.hpp"
-#include <cstdint>
+#include "minecraft/nbt/types.hpp"
 
 namespace minecraft::nbt {
 
@@ -29,10 +28,11 @@ namespace minecraft::nbt {
  */
 enum class ParseResult : uint8_t { SUCCESS, UNFINISHED, FAILED };
 
+// ============================================================================
 /**
  * @brief Get the name of the given result as a const char*
  */
-static constexpr const char *getName(ParseResult tag) {
+[[maybe_unused]] static constexpr const char *getName(ParseResult tag) {
   // Macro to easily generate all the conversions
 #define MK_CASE(name)                                                          \
   case ParseResult::name:                                                      \
@@ -51,6 +51,10 @@ static constexpr const char *getName(ParseResult tag) {
 }
 
 // ============================================================================
+using StreamChar = uint8_t;
+constexpr uint8_t BIT_PER_BYTES{sizeof(StreamChar)};
+
+// ============================================================================
 /**
  * @brief NBT bytes -> parser interface defining all common methods
  */
@@ -64,14 +68,21 @@ struct _IParser {
    * @param buffer the buffer to read the value from
    * @param N the number of bytes left in the buffer
    */
-  virtual ParseResult parse(const uint8_t *&strm, unsigned long &N) = 0;
+  virtual ParseResult parse(const StreamChar *&strm, unsigned long &N) = 0;
 
   /**
    * @brief Reset the parser for a new usage
    */
   virtual void reset() = 0;
 
-  static void inc_stream(const uint8_t *&strm, unsigned long &N,
+  /**
+   * @brief Increment the given stream by "inc" bytes
+   *
+   * @param strm the current stream
+   * @param N the number of bytes left in the stream
+   * @param inc how many bytes we should move forward in the stream
+   */
+  static void inc_stream(const StreamChar *&strm, unsigned long &N,
                          unsigned int inc = 1) {
     strm += inc;
     N -= inc;
@@ -84,8 +95,6 @@ struct _IParser {
 
 /**
  * @brief Alias to instantiate any byte -> NBT parser implementation
- *
- * @tparam TAG
  */
 template <Tags TAG> struct BytesParser : _IParser {};
 
@@ -105,7 +114,6 @@ template <Tags TAG> struct BytesParser : _IParser {};
 // ============================================================================
 // Parsing utility functions
 // ============================================================================
-constexpr uint8_t BIT_PER_BYTES{8};
 
 #define NBT_PARSE_N_BYTE_BEGIN()                                               \
   if (N <= 0)                                                                  \

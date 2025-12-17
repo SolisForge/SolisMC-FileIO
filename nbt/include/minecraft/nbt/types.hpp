@@ -13,6 +13,7 @@
 #define SOLISMC_NBT_TYPES_BASE_HPP
 
 #include <cstdint>
+#include <exception>
 #include <stdexcept>
 
 namespace minecraft::nbt {
@@ -47,7 +48,7 @@ enum class Tags : TagID_t {
   Object = Compound,
 };
 
-static constexpr const char *getName(Tags tag) {
+[[maybe_unused]] static constexpr const char *getName(Tags tag) {
   // Macro to easily generate all the conversions
 #define MK_CASE(type)                                                          \
   case Tags::type:                                                             \
@@ -77,13 +78,13 @@ static constexpr const char *getName(Tags tag) {
 // ============================================================================
 
 /**
- * @brief Meta-class for storing the NBT structure type info
- * @tparam T      the STD type representation for this tag
- * @tparam NBTTag the associated NBT tag
+ * @brief Exception to be run when using NBT-related functions with
+ * C++ types that have not been registered.
  */
-template <typename T, Tags NBTTag> struct NBTTypeInfo {
-  using type = T;
-  constexpr Tags tag() const { return NBTTag; }
+struct NBTUnregisteredType : std::exception {
+  const char *what() const noexcept final {
+    return "No matching specialization found for this type";
+  }
 };
 
 // ============================================================================
@@ -95,9 +96,44 @@ template <typename T, Tags NBTTag> struct NBTTypeInfo {
  * @return constexpr Tags::E
  */
 template <typename T> constexpr Tags getTag() {
-  throw std::runtime_error("Trying to get tag of unregistered type");
+  throw NBTUnregisteredType();
   return Tags::ERROR;
 }
+
+// ============================================================================
+
+/**
+ * @brief Meta-class for storing the NBT structure type info
+ * @tparam T      the STD type representation for this tag
+ * @tparam NBTTag the associated NBT tag
+ */
+template <typename T, Tags NBTTag = getTag<T>()> struct NBTTypeInfo {
+  using type = T;
+  constexpr Tags tag() const { return NBTTag; }
+};
+
+// ============================================================================
+// Type registration
+// ============================================================================
+// Integral types
+template <> constexpr Tags getTag<int8_t>() { return Tags::Byte; }
+template <> constexpr Tags getTag<uint8_t>() { return Tags::Byte; }
+using Byte = NBTTypeInfo<int8_t>;
+template <> constexpr Tags getTag<int16_t>() { return Tags::Short; }
+template <> constexpr Tags getTag<uint16_t>() { return Tags::Short; }
+using Short = NBTTypeInfo<int16_t>;
+template <> constexpr Tags getTag<int32_t>() { return Tags::Int; }
+template <> constexpr Tags getTag<uint32_t>() { return Tags::Int; }
+using Int = NBTTypeInfo<int32_t>;
+template <> constexpr Tags getTag<int64_t>() { return Tags::Long; }
+template <> constexpr Tags getTag<uint64_t>() { return Tags::Long; }
+using Long = NBTTypeInfo<int64_t>;
+
+// Floating point
+template <> constexpr Tags getTag<float>() { return Tags::Float; }
+using Float = NBTTypeInfo<float>;
+template <> constexpr Tags getTag<double>() { return Tags::Double; }
+using Double = NBTTypeInfo<double>;
 
 } // namespace minecraft::nbt
 
