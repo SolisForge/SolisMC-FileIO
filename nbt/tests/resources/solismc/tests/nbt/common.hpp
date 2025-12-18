@@ -43,8 +43,8 @@ template <typename T, StreamChar... Bytes> struct NBTValue {
   T value;
 };
 
-template <typename Tout, typename Tin, uint8_t... B1, uint8_t... B2,
-          template <typename, uint8_t...> typename C>
+template <typename Tout, typename Tin, StreamChar... B1, StreamChar... B2,
+          template <typename, StreamChar...> typename C>
 constexpr C<Tout, B1..., B2...> Combined(C<Tin, B1...>, C<Tin, B2...>) {
   static_assert(sizeof(Tout) == 2 * sizeof(Tin),
                 "Output type should be two times the size of the input ones");

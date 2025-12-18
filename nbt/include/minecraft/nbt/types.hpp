@@ -14,7 +14,6 @@
 
 #include <cstdint>
 #include <exception>
-#include <stdexcept>
 
 namespace minecraft::nbt {
 

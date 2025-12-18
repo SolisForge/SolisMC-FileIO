@@ -13,9 +13,18 @@
 #ifndef SOLIS_MC_NBT_INTEGRALS_TEST_SET_HPP
 #define SOLIS_MC_NBT_INTEGRALS_TEST_SET_HPP
 
-#include "minecraft/nbt/types.hpp"
+#include <bit>
 #include <cstdint>
 #include <solismc/tests/nbt/common.hpp>
+
+template <typename T> constexpr int8_t shiftOffset() {
+  return (std::endian::native == std::endian::big)
+             ? 0
+             : static_cast<int8_t>(sizeof(T) - 1);
+}
+template <typename T> constexpr int8_t nextOffset(int8_t i) {
+  return (std::endian::native == std::endian::big) ? i + 1 : i - 1;
+}
 
 /**
  * @brief Structure to represent the bytes representation of an integral value.
@@ -23,24 +32,23 @@
  * @tparam T the output type
  * @tparam Bytes... the bytes representation (big-endian)
  */
-template <typename T, uint8_t... Bytes>
+template <typename T, solis::StreamChar... Bytes>
 struct IntegralValue : solis::NBTValue<T, Bytes...> {
 
   constexpr IntegralValue<T, Bytes...>()
-      : solis::NBTValue<T, Bytes...>(_get_value(0, Bytes...)) {}
+      : solis::NBTValue<T, Bytes...>(_get_value(shiftOffset<T>(), Bytes...)) {}
 
   explicit constexpr IntegralValue<T, Bytes...>(const T &value)
       : solis::NBTValue<T, Bytes...>(value) {}
 
 private:
-  static constexpr T _get_value(std::size_t i, solis::StreamChar val) {
-    return static_cast<T>(static_cast<uint64_t>(val) << (8 * i));
+  static constexpr T _get_value(int8_t i, solis::StreamChar val) {
+    return static_cast<T>(static_cast<int64_t>(val) << (8 * i));
   }
 
   template <typename... Args>
-  static constexpr T _get_value(std::size_t i, solis::StreamChar val,
-                                Args... args) {
-    return _get_value(i, val) + _get_value(i + 1, args...);
+  static constexpr T _get_value(int8_t i, solis::StreamChar val, Args... args) {
+    return _get_value(i, val) + _get_value(nextOffset<T>(i), args...);
   }
 };
 

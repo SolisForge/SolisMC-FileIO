@@ -30,10 +30,10 @@ template <typename T> struct IntegralParser : _IParser {
     NBT_PARSE_N_BYTE_BEGIN()
     std::cout << "N_bytes=" << n_bytes << " " << value_ << " + "
               << static_cast<T>(strm[0]) << " = ";
-#if _CMAKE_ENDIANNESS == 1
-    value_ += ((T)(*strm)[0]);
+#if _CMAKE_BIG_ENDIAN == 0
+    value_ += ((T)strm[0]);
     if (n_bytes < TYPE_SIZE - 1)
-      value_ = value_ << BIT_PER_BYTE;
+      value_ = static_cast<T>(value_ << BIT_PER_BYTES);
 #else
     value_ += static_cast<T>(strm[0]) << n_bytes * BIT_PER_BYTES;
 #endif

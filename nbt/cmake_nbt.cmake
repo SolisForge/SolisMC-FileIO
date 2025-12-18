@@ -4,7 +4,7 @@
 # This file contains the CMake definitions of NBT-related targets & tests.
 # 
 # Author    Meltwin (github@meltwin.fr)
-# Date      11/12/2025 (created 11/12/2025)
+# Date      18/12/2025 (created 17/12/2025)
 # Version   1.0.0
 # Copyright Solis Forge | 2025 
 #           Distributed under MIT License (https://opensource.org/licenses/MIT)
@@ -18,9 +18,9 @@ add_solis_library( nbt
 )
 
 if ("${CMAKE_CXX_BYTE_ORDER}" STREQUAL "BIG_ENDIAN")
-  target_compile_definitions(nbt PUBLIC _CMAKE_ENDIANNESS=1)
+  target_compile_definitions(nbt PUBLIC _CMAKE_BIG_ENDIAN=1)
 else()
-  target_compile_definitions(nbt PUBLIC _CMAKE_ENDIANNESS=0)
+  target_compile_definitions(nbt PUBLIC _CMAKE_BIG_ENDIAN=0)
 endif()
 
 add_solis_library(
