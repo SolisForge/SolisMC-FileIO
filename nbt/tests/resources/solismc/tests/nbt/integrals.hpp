@@ -13,18 +13,8 @@
 #ifndef SOLIS_MC_NBT_INTEGRALS_TEST_SET_HPP
 #define SOLIS_MC_NBT_INTEGRALS_TEST_SET_HPP
 
-#include <bit>
 #include <cstdint>
 #include <solismc/tests/nbt/common.hpp>
-
-template <typename T> constexpr int8_t shiftOffset() {
-  return (std::endian::native == std::endian::big)
-             ? 0
-             : static_cast<int8_t>(sizeof(T) - 1);
-}
-template <typename T> constexpr int8_t nextOffset(int8_t i) {
-  return (std::endian::native == std::endian::big) ? i + 1 : i - 1;
-}
 
 /**
  * @brief Structure to represent the bytes representation of an integral value.
@@ -35,33 +25,20 @@ template <typename T> constexpr int8_t nextOffset(int8_t i) {
 template <typename T, solis::StreamChar... Bytes>
 struct IntegralValue : solis::NBTValue<T, Bytes...> {
 
-  constexpr IntegralValue<T, Bytes...>()
-      : solis::NBTValue<T, Bytes...>(_get_value(shiftOffset<T>(), Bytes...)) {}
-
   explicit constexpr IntegralValue<T, Bytes...>(const T &value)
       : solis::NBTValue<T, Bytes...>(value) {}
-
-private:
-  static constexpr T _get_value(int8_t i, solis::StreamChar val) {
-    return static_cast<T>(static_cast<int64_t>(val) << (8 * i));
-  }
-
-  template <typename... Args>
-  static constexpr T _get_value(int8_t i, solis::StreamChar val, Args... args) {
-    return _get_value(i, val) + _get_value(nextOffset<T>(i), args...);
-  }
 };
 
 // ==========================================================================
 // Bytes
 // ==========================================================================
-#define MK_BYTE(name, b1)                                                      \
-  [[maybe_unused]] constexpr auto name = IntegralValue<int8_t, b1>();
+#define MK_BYTE(name, b1, value)                                               \
+  [[maybe_unused]] constexpr auto name = IntegralValue<int8_t, b1>(value);
 
-MK_BYTE(BYTE_1, '\x19');
-MK_BYTE(BYTE_2, '\x27');
-MK_BYTE(BYTE_3, '\x53');
-MK_BYTE(BYTE_4, static_cast<solis::StreamChar>('\x89'));
+MK_BYTE(BYTE_1, '\x19', 25);
+MK_BYTE(BYTE_2, '\x27', 39);
+MK_BYTE(BYTE_3, '\x53', 83);
+MK_BYTE(BYTE_4, (solis::StreamChar)'\x89', -119);
 
 #undef MK_BYTE
 
@@ -69,13 +46,14 @@ MK_BYTE(BYTE_4, static_cast<solis::StreamChar>('\x89'));
 // Shorts
 // ==========================================================================
 // Define short values
-#define MK_SHORT(name, b1, b2)                                                 \
-  [[maybe_unused]] constexpr auto name = solis::Combined<int16_t>(b1, b2);
+#define MK_SHORT(name, b1, b2, value)                                          \
+  [[maybe_unused]] constexpr auto name =                                       \
+      solis::Combined<int16_t>(b1, b2, value);
 
-MK_SHORT(SHORT_1, BYTE_1, BYTE_2);
-MK_SHORT(SHORT_2, BYTE_3, BYTE_4);
-MK_SHORT(SHORT_3, BYTE_3, BYTE_1);
-MK_SHORT(SHORT_4, BYTE_4, BYTE_1);
+MK_SHORT(SHORT_1, BYTE_1, BYTE_2, 6439);   // x19 27 (big endian)
+MK_SHORT(SHORT_2, BYTE_3, BYTE_4, 21385);  // x53 89 (big endian)
+MK_SHORT(SHORT_3, BYTE_3, BYTE_1, 21273);  // x53 19 (big endian)
+MK_SHORT(SHORT_4, BYTE_4, BYTE_1, -30439); // x89 19 (big endian)
 
 #undef MK_SHORT
 
@@ -83,18 +61,18 @@ MK_SHORT(SHORT_4, BYTE_4, BYTE_1);
 constexpr auto ONE_SHORT = solis::NBTstream(SHORT_1);
 constexpr auto TWO_SHORT = ONE_SHORT + SHORT_2;
 constexpr auto INCOMPLETE_THREE_SHORTS = TWO_SHORT + BYTE_3;
-constexpr auto NEGATIVE_SHORT = solis::NBTstream(SHORT_2);
+constexpr auto NEGATIVE_SHORT = solis::NBTstream(SHORT_4);
 
 // ==========================================================================
 // Int
 // ==========================================================================
-#define MK_INT(name, short1, short2)                                           \
+#define MK_INT(name, short1, short2, value)                                    \
   [[maybe_unused]] constexpr auto name =                                       \
-      solis::Combined<int32_t>(short1, short2);
+      solis::Combined<int32_t>(short1, short2, value);
 
-MK_INT(INT_1, SHORT_1, SHORT_2)
-MK_INT(INT_2, SHORT_1, SHORT_3)
-MK_INT(INT_3, SHORT_3, SHORT_4)
+MK_INT(INT_1, SHORT_1, SHORT_2, 422007689)   // x19 27 53 89 (big endian)
+MK_INT(INT_2, SHORT_1, SHORT_3, 422007577)   // x19 27 53 19 (big endian)
+MK_INT(INT_3, SHORT_4, SHORT_3, -1994829031) // x89 19 53 19 (big endian)
 
 #undef MK_INT
 
@@ -102,25 +80,28 @@ MK_INT(INT_3, SHORT_3, SHORT_4)
 constexpr auto ONE_INT = solis::NBTstream(INT_2);
 constexpr auto TWO_INT = ONE_INT + INT_3;
 constexpr auto INCOMPLETE_THREE_INTS = TWO_INT + BYTE_3;
-constexpr auto NEGATIVE_INT = solis::NBTstream(INT_1);
+constexpr auto NEGATIVE_INT = solis::NBTstream(INT_3);
 
 // ==========================================================================
 // Long
 // ==========================================================================
-#define MK_LONG(name, int1, int2)                                              \
+#define MK_LONG(name, int1, int2, value)                                       \
   [[maybe_unused]] constexpr auto LONG_##name =                                \
-      solis::Combined<int64_t>(int1, int2);
+      solis::Combined<int64_t>(int1, int2, value);
 
-MK_LONG(1, INT_1, INT_2)
-MK_LONG(2, INT_2, INT_1)
-MK_LONG(3, INT_1, INT_3)
+// x19 27 53 89 19 27 53 19 (big endian)
+MK_LONG(1, INT_1, INT_2, 1812509223337546521)
+// x19 27 53 19 19 27 53 89 (big endian)
+MK_LONG(2, INT_2, INT_1, 1812508742301209481)
+// x89 19 53 19 19 27 53 19 (big endian)
+MK_LONG(3, INT_3, INT_2, -8567725448834362599)
 
 #undef MK_LONG
 
 // Define int streams to parse
 constexpr auto ONE_LONG = solis::NBTstream(LONG_1);
-constexpr auto TWO_LONG = ONE_LONG + LONG_3;
+constexpr auto TWO_LONG = ONE_LONG + LONG_2;
 constexpr auto INCOMPLETE_THREE_LONGS = TWO_LONG + BYTE_3;
-constexpr auto NEGATIVE_LONG = solis::NBTstream(LONG_2);
+constexpr auto NEGATIVE_LONG = solis::NBTstream(LONG_3);
 
 #endif

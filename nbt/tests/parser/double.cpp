@@ -10,10 +10,8 @@
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 
-#include "minecraft/nbt/parser.hpp"
-#include "minecraft/nbt/parsers/base.hpp"
+#include "minecraft/nbt/parser.hpp" // IWYU pragma: keep
 #include "solismc/tests/nbt/float.hpp"
-#include <cstdint>
 #include <doctest/doctest.h>
 
 using namespace minecraft::nbt;
@@ -58,7 +56,7 @@ TEST_CASE("BytesParser<NBT::Double>") {
       auto ret = parser.parse(p, n);
 
       CHECK_EQ(ret, ParseResult::SUCCESS);
-      CHECK_EQ(parser.get(), DOUBLE_2.value + 1);
+      CHECK_EQ(parser.get(), DOUBLE_2.value);
       CHECK_EQ(n, 0);
     }
   }

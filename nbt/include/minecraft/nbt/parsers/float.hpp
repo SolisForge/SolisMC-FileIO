@@ -58,7 +58,7 @@ private:
 
 // ============================================================================
 using FloatByteParser = FloatingPointParser<float, uint32_t>;
-using DoubleByteParser = FloatingPointParser<double, u_int64_t>;
+using DoubleByteParser = FloatingPointParser<double, uint64_t>;
 
 MK_BYTE_PARSER_WRAPPER(Tags::Float, FloatByteParser);
 MK_BYTE_PARSER_WRAPPER(Tags::Double, DoubleByteParser);

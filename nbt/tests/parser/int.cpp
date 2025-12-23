@@ -10,10 +10,10 @@
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 
-#include "minecraft/nbt/parser.hpp"
+#include "minecraft/nbt/parser.hpp" // IWYU pragma: keep
+#include "solismc/tests/nbt/integrals.hpp"
 #include <cstdint>
 #include <doctest/doctest.h>
-#include <solismc/tests/nbt/integrals.hpp>
 
 using namespace minecraft::nbt;
 
@@ -94,7 +94,7 @@ TEST_CASE("BytesParser<NBT::Int>") {
       auto ret = parser.parse(p, n);
 
       CHECK_EQ(ret, ParseResult::UNFINISHED);
-      CHECK_EQ(parser.get(), BYTE_3.value);
+      CHECK_EQ(parser.get(), BYTE_3.value << 8 * (sizeof(int32_t) - 1));
       CHECK_EQ(n, 0);
     }
   }
@@ -109,7 +109,8 @@ TEST_CASE("BytesParser<NBT::Int>") {
 
     CHECK_EQ(ret, ParseResult::SUCCESS);
     CHECK_LT(parser.get(), 0);
-    CHECK_EQ(parser.get(), INT_1.value);
+    CHECK_LT(INT_3.value, 0);
+    CHECK_EQ(parser.get(), INT_3.value);
     CHECK_EQ(n, 0);
   }
 }

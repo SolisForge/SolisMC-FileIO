@@ -11,18 +11,16 @@
 // ============================================================================
 
 #include "solismc/tests/nbt/float.hpp"
-#include "minecraft/nbt/parser.hpp"
-#include "solismc/tests/nbt/integrals.hpp"
+#include "minecraft/nbt/parser.hpp" // IWYU pragma: keep
 #include <doctest/doctest.h>
 
 using namespace minecraft::nbt;
 
 // ============================================================================
 TEST_CASE("BytesParser<NBT::Float>") {
-
   BytesParser<Tags::Float> parser;
 
-  // --------------------------------------------------------------------------
+  //   --------------------------------------------------------------------------
   SUBCASE("[ONE_FLOAT] Normal case") {
     parser.reset();
 
@@ -61,7 +59,7 @@ TEST_CASE("BytesParser<NBT::Float>") {
       CHECK_EQ(n, 0);
     }
   }
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------
   SUBCASE("[INCOMPLETE_THREE_FLOATS] Not enough bytes") {
     // Base input buffer
     auto *p = static_cast<const StreamChar *>(INCOMPLETE_THREE_FLOATS.STREAM);
