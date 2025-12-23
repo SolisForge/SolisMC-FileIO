@@ -52,7 +52,7 @@ enum class ParseResult : uint8_t { SUCCESS, UNFINISHED, FAILED };
 
 // ============================================================================
 using StreamChar = uint8_t;
-constexpr uint8_t BIT_PER_BYTES{sizeof(StreamChar)};
+constexpr uint8_t BIT_PER_BYTES{sizeof(StreamChar) * 8};
 
 // ============================================================================
 /**

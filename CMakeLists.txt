@@ -4,7 +4,7 @@
 # SolisMC-FileIO project provides the libraries to work with Minecraft files.
 # 
 # Author    Meltwin (github@meltwin.fr)
-# Date      10/12/2025 (created 04/12/2025)
+# Date      18/12/2025 (created 04/12/2025)
 # Version   1.0.0
 # Copyright Solis Forge | 2025 
 #           Distributed under MIT License (https://opensource.org/licenses/MIT)
@@ -15,7 +15,7 @@ project(solismc_fileio CXX)
 
 find_package(solis_cmake REQUIRED)
 
-set(CXX_STANDARD 21)
+set(CXX_STANDARD 20)
 set(CMAKE_BUILD_TYPE Release)
 option(UNIT_TESTS_ENABLED "Enable unit-test compilation" ON )
 

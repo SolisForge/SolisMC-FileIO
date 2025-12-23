@@ -10,10 +10,9 @@
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 
-#include "minecraft/nbt/parser.hpp"
-#include <cstdint>
+#include "minecraft/nbt/parser.hpp" // IWYU pragma: keep
+#include "solismc/tests/nbt/integrals.hpp"
 #include <doctest/doctest.h>
-#include <solismc/tests/nbt/integrals.hpp>
 
 using namespace minecraft::nbt;
 
@@ -57,7 +56,7 @@ TEST_CASE("BytesParser<NBT::Long>") {
       auto ret = parser.parse(p, n);
 
       CHECK_EQ(ret, ParseResult::SUCCESS);
-      CHECK_EQ(parser.get(), LONG_3.value);
+      CHECK_EQ(parser.get(), LONG_2.value);
       CHECK_EQ(n, 0);
     }
   }
@@ -84,7 +83,7 @@ TEST_CASE("BytesParser<NBT::Long>") {
       auto ret = parser.parse(p, n);
 
       CHECK_EQ(ret, ParseResult::SUCCESS);
-      CHECK_EQ(parser.get(), LONG_3.value);
+      CHECK_EQ(parser.get(), LONG_2.value);
       CHECK_EQ(n, N - 2 * sizeof(int64_t));
     }
 
@@ -94,7 +93,8 @@ TEST_CASE("BytesParser<NBT::Long>") {
       auto ret = parser.parse(p, n);
 
       CHECK_EQ(ret, ParseResult::UNFINISHED);
-      CHECK_EQ(parser.get(), BYTE_3.value);
+      CHECK_EQ(parser.get(), static_cast<long>(BYTE_3.value)
+                                 << (8 * (sizeof(int64_t) - 1)));
       CHECK_EQ(n, 0);
     }
   }
@@ -109,7 +109,8 @@ TEST_CASE("BytesParser<NBT::Long>") {
 
     CHECK_EQ(ret, ParseResult::SUCCESS);
     CHECK_LT(parser.get(), 0);
-    CHECK_EQ(parser.get(), LONG_2.value);
+    CHECK_LT(LONG_3.value, 0);
+    CHECK_EQ(parser.get(), LONG_3.value);
     CHECK_EQ(n, 0);
   }
 }

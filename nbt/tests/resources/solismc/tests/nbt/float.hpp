@@ -18,11 +18,11 @@
 #include <solismc/tests/nbt/integrals.hpp>
 
 /**
- * @brief Structure to represent the bytes representation of a float value.
+ * @brief
  *
  * @tparam T the output type
- * @tparam Bytes... the bytes representation (big-endian)
- */
+ *@tparam Bytes... the bytes representation(big-endian)
+ **/
 template <typename T, solis::StreamChar... Bytes>
 struct FloatValue : solis::NBTValue<T, Bytes...> {
 
