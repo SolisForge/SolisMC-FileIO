@@ -12,7 +12,7 @@
 #ifndef SOLISMC_NBT_PARSER_BASE_HPP
 #define SOLISMC_NBT_PARSER_BASE_HPP
 
-#include "minecraft/nbt/types.hpp"
+#include <cstdint>
 
 namespace minecraft::nbt {
 
@@ -55,12 +55,14 @@ using StreamChar = uint8_t;
 constexpr uint8_t BIT_PER_BYTES{sizeof(StreamChar) * 8};
 
 // ============================================================================
+
 /**
  * @brief NBT bytes -> parser interface defining all common methods
  */
-struct _IParser {
+template <typename T> struct BytesParser {
+  static_assert(false, "Not registerd");
 
-  virtual ~_IParser() = default;
+  ~BytesParser();
 
   /**
    * @brief Parse the given buffer to set the value to the NBT type
@@ -68,48 +70,31 @@ struct _IParser {
    * @param buffer the buffer to read the value from
    * @param N the number of bytes left in the buffer
    */
-  virtual ParseResult parse(const StreamChar *&strm, unsigned long &N) = 0;
+  ParseResult parse(const StreamChar *&strm, unsigned long &N);
 
   /**
    * @brief Reset the parser for a new usage
    */
-  virtual void reset() = 0;
+  void reset();
 
   /**
-   * @brief Increment the given stream by "inc" bytes
-   *
-   * @param strm the current stream
-   * @param N the number of bytes left in the stream
-   * @param inc how many bytes we should move forward in the stream
+   * @brief Return the value parsed from the stream
    */
-  static void inc_stream(const StreamChar *&strm, unsigned long &N,
-                         unsigned int inc = 1) {
-    strm += inc;
-    N -= inc;
-  }
+  T get() const;
 };
 
-// ============================================================================
-// Parser common entrypoing
-// ============================================================================
-
 /**
- * @brief Alias to instantiate any byte -> NBT parser implementation
- */
-template <Tags TAG> struct BytesParser : _IParser {};
-
-/**
- * @brief Macro to generate a BytesParser specialization for a tag, given a
- * parser implementation.
+ * @brief Increment the given stream by "inc" bytes
  *
- * This class helps gathering all parser implementation below a common name.
+ * @param strm the current stream
+ * @param N the number of bytes left in the stream
+ * @param inc how many bytes we should move forward in the stream
  */
-#define MK_BYTE_PARSER_WRAPPER(tag, impl)                                      \
-  template <> struct BytesParser<tag> : impl {                                 \
-    static_assert(std::is_base_of_v<_IParser, impl>,                           \
-                  "The NBT parsing implementation " #impl                      \
-                  " must be a child of _IParser");                             \
-  };
+inline void inc_stream(const StreamChar *&strm, unsigned long &N,
+                       unsigned int inc = 1) {
+  strm += inc;
+  N -= inc;
+}
 
 // ============================================================================
 // Parsing utility functions

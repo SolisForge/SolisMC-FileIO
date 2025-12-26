@@ -69,6 +69,8 @@ enum class Tags : TagID_t {
     MK_CASE(LongArray);
     MK_CASE(Compound);
     MK_CASE(ERROR);
+  default:
+    return "??";
   }
 
 #undef MK_CASE
@@ -108,7 +110,7 @@ template <typename T> constexpr Tags getTag() {
  */
 template <typename T, Tags NBTTag = getTag<T>()> struct NBTTypeInfo {
   using type = T;
-  constexpr Tags tag() const { return NBTTag; }
+  static constexpr Tags TAG{NBTTag};
 };
 
 // ============================================================================

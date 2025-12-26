@@ -19,7 +19,7 @@ using namespace minecraft::nbt;
 // ============================================================================
 TEST_CASE("BytesParser<NBT::Double>") {
 
-  BytesParser<Tags::Double> parser;
+  BytesParser<double> parser;
 
   // --------------------------------------------------------------------------
   SUBCASE("[ONE_DOUBLE] Normal case") {

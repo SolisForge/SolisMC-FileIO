@@ -12,6 +12,7 @@
 
 #include "minecraft/nbt/parser.hpp" // IWYU pragma: keep
 #include "solismc/tests/nbt/integrals.hpp"
+#include <cstdint>
 #include <doctest/doctest.h>
 
 using namespace minecraft::nbt;
@@ -19,7 +20,7 @@ using namespace minecraft::nbt;
 // ============================================================================
 TEST_CASE("BytesParser<NBT::Long>") {
 
-  BytesParser<Tags::Long> parser;
+  BytesParser<int64_t> parser;
 
   // --------------------------------------------------------------------------
   SUBCASE("[ONE_LONG] Normal case") {
@@ -93,8 +94,7 @@ TEST_CASE("BytesParser<NBT::Long>") {
       auto ret = parser.parse(p, n);
 
       CHECK_EQ(ret, ParseResult::UNFINISHED);
-      CHECK_EQ(parser.get(), static_cast<long>(BYTE_3.value)
-                                 << (8 * (sizeof(int64_t) - 1)));
+      CHECK_EQ(parser.get(), 0);
       CHECK_EQ(n, 0);
     }
   }

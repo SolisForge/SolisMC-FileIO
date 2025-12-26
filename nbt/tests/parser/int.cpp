@@ -20,7 +20,7 @@ using namespace minecraft::nbt;
 // ============================================================================
 TEST_CASE("BytesParser<NBT::Int>") {
 
-  BytesParser<Tags::Int> parser;
+  BytesParser<int32_t> parser;
 
   // --------------------------------------------------------------------------
   SUBCASE("[ONE_INT] Normal case") {
@@ -94,7 +94,7 @@ TEST_CASE("BytesParser<NBT::Int>") {
       auto ret = parser.parse(p, n);
 
       CHECK_EQ(ret, ParseResult::UNFINISHED);
-      CHECK_EQ(parser.get(), BYTE_3.value << 8 * (sizeof(int32_t) - 1));
+      CHECK_EQ(parser.get(), 0);
       CHECK_EQ(n, 0);
     }
   }

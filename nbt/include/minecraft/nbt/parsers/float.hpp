@@ -1,7 +1,7 @@
 // ============================================================================
 // Project: SOLISMC-FILEIO
 //
-// NBT Float values parser implementation
+// Float types byte-parsing definition
 //
 // Author    Meltwin (github@meltwin.fr)
 // Date      11/12/2025 (created 11/12/2025)
@@ -12,56 +12,58 @@
 #ifndef SOLISMC_NBT_PARSER_FLOAT_HPP
 #define SOLISMC_NBT_PARSER_FLOAT_HPP
 
-#include "minecraft/nbt/parsers/base.hpp"
-#include "minecraft/nbt/parsers/integral.hpp"
-#include <bit>
+#include "minecraft/nbt/parsers/integral.hpp" // IWYU pragma: keep
+#include <concepts>
+#include <cstdint>
 
 namespace minecraft::nbt {
 
 // ============================================================================
+// Type adapter
+// ============================================================================
 
 /**
- * @brief Parser implementation for floating point typoes
- *
- * @tparam T the parsed STD type
+ * @brief Special structure to allow float -> int mapping
  */
-template <typename T, typename Buffer> struct FloatingPointParser : _IParser {
-  static_assert(std::is_integral_v<Buffer>,
-                "The buffer should be of integral type");
-  static_assert(sizeof(T) == sizeof(Buffer),
-                "The buffer type should be of same size as the float type");
-
-  ParseResult parse(const StreamChar *&strm, unsigned long &N) override {
-    // Parse the floating point as an integral type
-    if (auto ret = int_buffer_.parse(strm, N); ret != ParseResult::SUCCESS)
-      return ret;
-
-    // Cast the buffer as a floating point value
-    value_ = std::bit_cast<T>(int_buffer_.get());
-    return ParseResult::SUCCESS;
-  }
-
-  T get() const { return value_; }
-
-  inline void reset() override {
-    value_ = 0;
-    int_buffer_.reset();
-  }
-
-  // --------------------------------------------------------------------------
-  // Internal members
-  // --------------------------------------------------------------------------
-private:
-  T value_;
-  IntegralParser<Buffer> int_buffer_;
+template <typename T> struct FloatToInt {
+  using INT_TYPE = void;
+};
+template <> struct FloatToInt<float> {
+  using INT_TYPE = int32_t;
+};
+template <> struct FloatToInt<double> {
+  using INT_TYPE = int64_t;
 };
 
 // ============================================================================
-using FloatByteParser = FloatingPointParser<float, uint32_t>;
-using DoubleByteParser = FloatingPointParser<double, uint64_t>;
+// Float parser
+// ============================================================================
 
-MK_BYTE_PARSER_WRAPPER(Tags::Float, FloatByteParser);
-MK_BYTE_PARSER_WRAPPER(Tags::Double, DoubleByteParser);
+/**
+ * @brief Parser implementation for floating point types
+ */
+template <std::floating_point T> struct BytesParser<T> {
+
+  ParseResult parse(const StreamChar *&strm, unsigned long &N);
+
+  T get() const { return parsed_ ? value_ : 0.0; }
+
+  inline void reset() {
+    value_ = 0;
+    int_parser_.reset();
+  }
+
+private:
+  T value_;
+  BytesParser<typename FloatToInt<T>::INT_TYPE> int_parser_;
+  bool parsed_ = false;
+};
+
+// ============================================================================
+// Specialization definition
+// ============================================================================
+extern template struct BytesParser<float>;
+extern template struct BytesParser<double>;
 
 } // namespace minecraft::nbt
 

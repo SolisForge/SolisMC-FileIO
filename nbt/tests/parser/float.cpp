@@ -18,7 +18,7 @@ using namespace minecraft::nbt;
 
 // ============================================================================
 TEST_CASE("BytesParser<NBT::Float>") {
-  BytesParser<Tags::Float> parser;
+  BytesParser<float> parser;
 
   //   --------------------------------------------------------------------------
   SUBCASE("[ONE_FLOAT] Normal case") {
