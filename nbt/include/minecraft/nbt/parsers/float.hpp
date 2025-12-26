@@ -60,7 +60,7 @@ private:
 };
 
 // ============================================================================
-// Specialization definition
+// Specialization export in this library
 // ============================================================================
 extern template struct BytesParser<float>;
 extern template struct BytesParser<double>;
