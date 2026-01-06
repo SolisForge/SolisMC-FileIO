@@ -31,10 +31,6 @@ template <typename T, StreamChar... Bytes> struct NBTValue {
   using TYPE = T;
 
   static constexpr std::size_t N = sizeof...(Bytes);
-  static_assert(
-      N == sizeof(T),
-      "The number of provided bytes should be equal to the output type size");
-
   static constexpr StreamChar STREAM[N]{Bytes...};
 
   explicit constexpr NBTValue<T, Bytes...>(T value) : value(value) {}

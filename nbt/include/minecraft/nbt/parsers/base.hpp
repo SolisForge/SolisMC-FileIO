@@ -60,7 +60,7 @@ constexpr uint8_t BIT_PER_BYTES{sizeof(StreamChar) * 8};
  * @brief NBT bytes -> parser interface defining all common methods
  */
 template <typename T> struct BytesParser {
-  static_assert(false, "Not registered");
+  static_assert(false, "This type does not have a registered NBT byte parser");
 
   ~BytesParser();
 

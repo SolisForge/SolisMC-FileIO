@@ -30,13 +30,16 @@ template <> struct BytesParser<std::string> {
     size_parser_.reset();
     n_bytes = 0;
     value_ = std::string(nullptr);
+    size_parsed_ = false;
+    parsed_ = false;
   }
 
 private:
-  static constexpr std::string EMPTY_STR{""};
+  static constexpr std::string EMPTY_STR{};
   std::string value_;
   BytesParser<int16_t> size_parser_;
   std::size_t n_bytes;
+  bool size_parsed_;
   bool parsed_;
 };
 
