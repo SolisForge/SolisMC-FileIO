@@ -1,7 +1,7 @@
 // ============================================================================
 // Project: SOLISMC-FILEIO
 //
-//
+// String byte-parsing implementation
 //
 // Author    Meltwin (github@meltwin.fr)
 // Date      26/12/2025 (created 26/12/2025)
