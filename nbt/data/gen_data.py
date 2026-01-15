@@ -15,7 +15,10 @@ from pathlib import Path
 from solis.resources import LOGGER_CONF
 from solis.utils.types.patterns import LazyInit
 
-LOGGER = LazyInit(lambda: getLogger("data_gen"))
+from _data_gen._reader import read_from_file
+from _data_gen._converter import generate_header
+
+LOGGER = LazyInit(lambda: getLogger("DataGenerator"))
 
 
 # =============================================================================
@@ -24,6 +27,8 @@ def process_file(file_in: Path, file_out: Path) -> None:
     Process the given file into an header one
     """
     LOGGER().info(f"Processing file {file_in} -> {file_out}")
+    config = read_from_file(file_in)
+    generate_header(config, file_in.stem.split("_")[1], file_out)
 
 
 # =============================================================================
@@ -36,6 +41,10 @@ def gen_data(input_d: Path, output_d: Path) -> None:
     # Get file list in order
     files = list(input_d.glob("*.yml"))
     files.sort(key=lambda f: int(f.name.split("_")[0]))
+
+    # Generate output directory
+    if not output_d.exists():
+        output_d.mkdir(parents=True, exist_ok=True)
 
     for file in files:
         process_file(file, output_d.joinpath(file.stem + ".hpp"))
