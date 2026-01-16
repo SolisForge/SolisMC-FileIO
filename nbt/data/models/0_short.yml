@@ -1,0 +1,25 @@
+ctype: int16_t
+values:
+  short1: 10
+  short2: 596
+  negative_short: -1098
+  big_short: 30989
+streams:
+  SHORT1:
+    values:
+      - short1
+  SHORT2:
+    values:
+      - short2
+  NEGATIVE_SHORT:
+    values:
+      - negative_short
+  MULTIPLE_SHORTS:
+    values:
+      - short1
+      - big_short
+  INCOMPLETE_SHORTS:
+    incomplete: true
+    values:
+      - short1
+      - big_short
