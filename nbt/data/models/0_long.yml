@@ -1,0 +1,25 @@
+ctype: int64_t
+values:
+  long1: 10
+  long2: 596
+  negative_long: -1098
+  big_long: 30989
+streams:
+  LONG1:
+    values:
+      - long1
+  LONG2:
+    values:
+      - long2
+  NEGATIVE_LONG:
+    values:
+      - negative_long
+  MULTIPLE_LONGS:
+    values:
+      - long1
+      - big_long
+  INCOMPLETE_LONGS:
+    incomplete: true
+    values:
+      - long1
+      - big_long

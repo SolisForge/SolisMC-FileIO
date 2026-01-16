@@ -1,0 +1,25 @@
+ctype: int32_t
+values:
+  int1: 10
+  int2: 347
+  negative_int: -91
+  big_int: 422007689
+streams:
+  INT1:
+    values:
+      - int1
+  INT2:
+    values:
+      - int2
+  NEGATIVE_INT:
+    values:
+      - negative_int
+  MULTIPLE_INTS:
+    values:
+      - int1
+      - big_int
+  INCOMPLETE_INTS:
+    incomplete: true
+    values:
+      - int1
+      - big_int

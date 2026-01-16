@@ -11,7 +11,7 @@
 // ============================================================================
 
 #include "minecraft/nbt/parser.hpp" // IWYU pragma: keep
-#include "solismc/tests/nbt/integrals.hpp"
+#include "solismc_dataset/nbt/0_short.hpp"
 #include <doctest/doctest.h>
 
 using namespace minecraft::nbt;
@@ -22,93 +22,77 @@ TEST_CASE("BytesParser<NBT::Short>") {
   BytesParser<int16_t> parser;
 
   // --------------------------------------------------------------------------
-  SUBCASE("[ONE_SHORT] Normal case") {
-    parser.reset();
-
-    auto *p = static_cast<const StreamChar *>(ONE_SHORT.STREAM);
-    auto n = ONE_SHORT.STREAM_LENGTH;
+  SUBCASE("[SHORT1] Normal case") {
+    auto *p = static_cast<const StreamChar *>(SHORT1::STREAM);
+    auto n = SHORT1::LENGTH;
     auto ret = parser.parse(p, n);
 
     CHECK_EQ(ret, ParseResult::SUCCESS);
-    CHECK_EQ(parser.get(), SHORT_1.value);
+    CHECK_EQ(parser.get(), SHORT1::VALUES[0]);
     CHECK_EQ(n, 0);
   }
+
   // --------------------------------------------------------------------------
-  SUBCASE("[TWO_SHORT] Several readings") {
-    // Base input buffer
-    auto *p = static_cast<const StreamChar *>(TWO_SHORT.STREAM);
-    auto n = TWO_SHORT.STREAM_LENGTH;
+  SUBCASE("[SHORT2] Normal case") {
+    auto *p = static_cast<const StreamChar *>(SHORT2::STREAM);
+    auto n = SHORT2::LENGTH;
+    auto ret = parser.parse(p, n);
 
-    // First reading
-    {
-      parser.reset();
-      auto ret = parser.parse(p, n);
-
-      CHECK_EQ(ret, ParseResult::SUCCESS);
-      CHECK_EQ(parser.get(), SHORT_1.value);
-      CHECK_EQ(n, TWO_SHORT.STREAM_LENGTH - 2);
-    }
-
-    // Second reading
-    {
-      parser.reset();
-      auto ret = parser.parse(p, n);
-
-      CHECK_EQ(ret, ParseResult::SUCCESS);
-      CHECK_EQ(parser.get(), SHORT_2.value);
-      CHECK_EQ(n, TWO_SHORT.STREAM_LENGTH - 4);
-    }
-  }
-  // --------------------------------------------------------------------------
-  SUBCASE("[INCOMPLETE_THREE_SHORTS] Not enough bytes") {
-    // Base input buffer
-    auto *p = static_cast<const StreamChar *>(INCOMPLETE_THREE_SHORTS.STREAM);
-    auto n = INCOMPLETE_THREE_SHORTS.STREAM_LENGTH;
-    const auto N = INCOMPLETE_THREE_SHORTS.STREAM_LENGTH;
-
-    // First reading
-    {
-      parser.reset();
-      auto ret = parser.parse(p, n);
-
-      CHECK_EQ(ret, ParseResult::SUCCESS);
-      CHECK_EQ(parser.get(), SHORT_1.value);
-      CHECK_EQ(n, N - 2);
-    }
-
-    // Second reading
-    {
-      parser.reset();
-      auto ret = parser.parse(p, n);
-
-      CHECK_EQ(ret, ParseResult::SUCCESS);
-      CHECK_EQ(parser.get(), SHORT_2.value);
-      CHECK_EQ(n, N - 4);
-    }
-
-    // Third reading
-    {
-      parser.reset();
-      auto ret = parser.parse(p, n);
-
-      CHECK_EQ(ret, ParseResult::UNFINISHED);
-      CHECK_EQ(parser.get(), 0);
-      CHECK_EQ(n, 0);
-    }
+    CHECK_EQ(ret, ParseResult::SUCCESS);
+    CHECK_EQ(parser.get(), SHORT2::VALUES[0]);
+    CHECK_EQ(n, 0);
   }
   // --------------------------------------------------------------------------
   SUBCASE("[NEGATIVE_SHORT] Parse of byte of negative value") {
 
-    auto *p = static_cast<const StreamChar *>(NEGATIVE_SHORT.STREAM);
-    auto n = NEGATIVE_SHORT.STREAM_LENGTH;
+    auto *p = static_cast<const StreamChar *>(NEGATIVE_SHORT::STREAM);
+    auto n = NEGATIVE_SHORT::LENGTH;
 
-    parser.reset();
     auto ret = parser.parse(p, n);
-
     CHECK_EQ(ret, ParseResult::SUCCESS);
     CHECK_LT(parser.get(), 0);
-    CHECK_LT(SHORT_4.value, 0);
-    CHECK_EQ(parser.get(), SHORT_4.value);
+    CHECK_LT(VALUE_NEGATIVE_SHORT::VALUE, 0);
+    CHECK_EQ(parser.get(), VALUE_NEGATIVE_SHORT::VALUE);
     CHECK_EQ(n, 0);
+  }
+  // --------------------------------------------------------------------------
+  SUBCASE("[MULTIPLE_SHORTS] Several readings") {
+    // Base input buffer
+    auto *p = static_cast<const StreamChar *>(MULTIPLE_SHORTS::STREAM);
+    auto n = MULTIPLE_SHORTS::LENGTH;
+
+    // Read all values
+    for (unsigned long i = 0; i < MULTIPLE_SHORTS::N_VALUES; i++) {
+      auto ret = parser.parse(p, n);
+
+      CHECK_EQ(ret, ParseResult::SUCCESS);
+      CHECK_EQ(parser.get(), MULTIPLE_SHORTS::VALUES[i]);
+      CHECK_EQ(n, MULTIPLE_SHORTS::LENGTH - (i + 1) * sizeof(int16_t));
+    }
+  }
+  //  --------------------------------------------------------------------------
+  SUBCASE("[INCOMPLETE_THREE_SHORTS] Not enough bytes") {
+    // Base input buffer
+    auto *p = static_cast<const StreamChar *>(INCOMPLETE_SHORTS::STREAM);
+    auto n = INCOMPLETE_SHORTS::LENGTH;
+
+    // Read all values
+    for (unsigned long i = 0; i < INCOMPLETE_SHORTS::N_VALUES - 1; i++) {
+      auto ret = parser.parse(p, n);
+
+      CHECK_EQ(ret, ParseResult::SUCCESS);
+      CHECK_EQ(parser.get(), INCOMPLETE_SHORTS::VALUES[i]);
+      CHECK_EQ(n, INCOMPLETE_SHORTS::LENGTH - (i + 1) * sizeof(int16_t));
+    }
+
+    // Incomplete reading
+    {
+      auto ret = parser.parse(p, n);
+
+      CHECK_EQ(ret, ParseResult::UNFINISHED);
+      CHECK_EQ(parser.get(),
+               INCOMPLETE_SHORTS::VALUES[INCOMPLETE_SHORTS::N_VALUES - 1]);
+      CHECK_EQ(n, 0);
+    }
   }
 }
