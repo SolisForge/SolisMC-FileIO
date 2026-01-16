@@ -1,7 +1,7 @@
 // ============================================================================
 // Project: SOLISMC_FILEIO
 //
-// Unittests for NBT::Int byte parsing.
+// Unittests for NBT::Short byte parsing.
 //
 // Author    Meltwin (github@meltwin.fr)
 // Date      20/11/2025 (created 20/11/2025)
