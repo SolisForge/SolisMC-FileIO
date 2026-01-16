@@ -1,0 +1,28 @@
+ctype: float
+values:
+  float1: 0.593
+  float2: 10.36
+  big_float: 1.539E12
+  negative_float: -92.394
+streams:
+  FLOAT1:
+    values:
+      - float1
+  FLOAT2:
+    values:
+      - float2
+  BIG_FLOAT:
+    values:
+      - big_float
+  NEGATIVE_FLOAT:
+    values:
+      - negative_float
+  MULTIPLE_FLOATS:
+    values:
+      - float1
+      - big_float
+  INCOMPLETE_FLOATS:
+    incomplete: true
+    values:
+      - float1
+      - big_float
