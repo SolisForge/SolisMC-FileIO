@@ -115,7 +115,7 @@ def get_pytype_from_ctype(ctype: str) -> type:
     match ctype:
         case "int8_t" | "int16_t" | "int32_t" | "int64_t":
             return int
-        case "float":
+        case "float" | "double":
             return float
         case "intarray" | "longarray" | "bytearray":
             return list[int]

@@ -1,0 +1,28 @@
+ctype: double
+values:
+  double1: 0.593
+  double2: 10.36
+  big_double: 1.539E100
+  negative_double: -92.394
+streams:
+  DOUBLE1:
+    values:
+      - double1
+  DOUBLE2:
+    values:
+      - double2
+  BIG_DOUBLE:
+    values:
+      - big_double
+  NEGATIVE_DOUBLE:
+    values:
+      - negative_double
+  MULTIPLE_DOUBLES:
+    values:
+      - double1
+      - big_double
+  INCOMPLETE_DOUBLES:
+    incomplete: true
+    values:
+      - double1
+      - big_double
