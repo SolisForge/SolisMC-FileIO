@@ -1,116 +1,98 @@
-// // ============================================================================
-// // Project: SOLISMC_FILEIO
-// //
-// // Unittests for NBT::Long byte parsing.
-// //
-// // Author    Meltwin (github@meltwin.fr)
-// // Date      20/11/2025 (created 20/11/2025)
-// // Version   1.0.0
-// // Copyright Solis Forge | 2025
-// //           Distributed under MIT License (https://opensource.org/licenses/MIT)
-// // ============================================================================
+// ============================================================================
+// Project: SOLISMC_FILEIO
+//
+// Unittests for NBT::Long byte parsing.
+//
+// Author    Meltwin (github@meltwin.fr)
+// Date      20/11/2025 (created 20/11/2025)
+// Version   1.0.0
+// Copyright Solis Forge | 2025
+//           Distributed under MIT License (https://opensource.org/licenses/MIT)
+// ============================================================================
 
-// #include "minecraft/nbt/parser.hpp" // IWYU pragma: keep
-// #include "solismc/tests/nbt/integrals.hpp"
-// #include <cstdint>
-// #include <doctest/doctest.h>
+#include "minecraft/nbt/parser.hpp" // IWYU pragma: keep
+#include "solismc_dataset/nbt/0_long.hpp"
+#include <doctest/doctest.h>
 
-// using namespace minecraft::nbt;
+using namespace minecraft::nbt;
 
-// // ============================================================================
-// TEST_CASE("BytesParser<NBT::Long>") {
+// ============================================================================
+TEST_CASE("BytesParser<NBT::Long>") {
 
-//   BytesParser<int64_t> parser;
+  BytesParser<int64_t> parser;
 
-//   // --------------------------------------------------------------------------
-//   SUBCASE("[ONE_LONG] Normal case") {
-//     parser.reset();
+  // --------------------------------------------------------------------------
+  SUBCASE("[LONG1] Normal case") {
+    auto *p = static_cast<const StreamChar *>(LONG1::STREAM);
+    auto n = LONG1::LENGTH;
+    auto ret = parser.parse(p, n);
 
-//     auto *p = static_cast<const StreamChar *>(ONE_LONG.STREAM);
-//     auto n = ONE_LONG.STREAM_LENGTH;
-//     auto ret = parser.parse(p, n);
+    CHECK_EQ(ret, ParseResult::SUCCESS);
+    CHECK_EQ(parser.get(), LONG1::VALUES[0]);
+    CHECK_EQ(n, 0);
+  }
 
-//     CHECK_EQ(ret, ParseResult::SUCCESS);
-//     CHECK_EQ(parser.get(), LONG_1.value);
-//     CHECK_EQ(n, 0);
-//   }
-//   // --------------------------------------------------------------------------
-//   SUBCASE("[TWO_LONG] Several readings") {
-//     // Base input buffer
-//     auto *p = static_cast<const StreamChar *>(TWO_LONG.STREAM);
-//     auto n = TWO_LONG.STREAM_LENGTH;
-//     const auto N = TWO_LONG.STREAM_LENGTH;
+  // --------------------------------------------------------------------------
+  SUBCASE("[LONG2] Normal case") {
+    auto *p = static_cast<const StreamChar *>(LONG2::STREAM);
+    auto n = LONG2::LENGTH;
+    auto ret = parser.parse(p, n);
 
-//     // First reading
-//     {
-//       parser.reset();
-//       auto ret = parser.parse(p, n);
+    CHECK_EQ(ret, ParseResult::SUCCESS);
+    CHECK_EQ(parser.get(), LONG2::VALUES[0]);
+    CHECK_EQ(n, 0);
+  }
+  // --------------------------------------------------------------------------
+  SUBCASE("[NEGATIVE_LONG] Parse of byte of negative value") {
 
-//       CHECK_EQ(ret, ParseResult::SUCCESS);
-//       CHECK_EQ(parser.get(), LONG_1.value);
-//       CHECK_EQ(n, N - sizeof(int64_t));
-//     }
+    auto *p = static_cast<const StreamChar *>(NEGATIVE_LONG::STREAM);
+    auto n = NEGATIVE_LONG::LENGTH;
 
-//     // Second reading
-//     {
-//       parser.reset();
-//       auto ret = parser.parse(p, n);
+    auto ret = parser.parse(p, n);
+    CHECK_EQ(ret, ParseResult::SUCCESS);
+    CHECK_LT(parser.get(), 0);
+    CHECK_LT(VALUE_NEGATIVE_LONG::VALUE, 0);
+    CHECK_EQ(parser.get(), VALUE_NEGATIVE_LONG::VALUE);
+    CHECK_EQ(n, 0);
+  }
+  // --------------------------------------------------------------------------
+  SUBCASE("[MULTIPLE_LONGS] Several readings") {
+    // Base input buffer
+    auto *p = static_cast<const StreamChar *>(MULTIPLE_LONGS::STREAM);
+    auto n = MULTIPLE_LONGS::LENGTH;
 
-//       CHECK_EQ(ret, ParseResult::SUCCESS);
-//       CHECK_EQ(parser.get(), LONG_2.value);
-//       CHECK_EQ(n, 0);
-//     }
-//   }
-//   // --------------------------------------------------------------------------
-//   SUBCASE("[INCOMPLETE_THREE_LONGS] Not enough bytes") {
-//     // Base input buffer
-//     auto *p = static_cast<const StreamChar *>(INCOMPLETE_THREE_LONGS.STREAM);
-//     auto n = INCOMPLETE_THREE_LONGS.STREAM_LENGTH;
-//     const auto N = INCOMPLETE_THREE_LONGS.STREAM_LENGTH;
+    // Read all values
+    for (unsigned long i = 0; i < MULTIPLE_LONGS::N_VALUES; i++) {
+      auto ret = parser.parse(p, n);
 
-//     // First reading
-//     {
-//       parser.reset();
-//       auto ret = parser.parse(p, n);
+      CHECK_EQ(ret, ParseResult::SUCCESS);
+      CHECK_EQ(parser.get(), MULTIPLE_LONGS::VALUES[i]);
+      CHECK_EQ(n, MULTIPLE_LONGS::LENGTH - (i + 1) * sizeof(int64_t));
+    }
+  }
+  //  --------------------------------------------------------------------------
+  SUBCASE("[INCOMPLETE_THREE_LONGS] Not enough bytes") {
+    // Base input buffer
+    auto *p = static_cast<const StreamChar *>(INCOMPLETE_LONGS::STREAM);
+    auto n = INCOMPLETE_LONGS::LENGTH;
 
-//       CHECK_EQ(ret, ParseResult::SUCCESS);
-//       CHECK_EQ(parser.get(), LONG_1.value);
-//       CHECK_EQ(n, N - sizeof(int64_t));
-//     }
+    // Read all values
+    for (unsigned long i = 0; i < INCOMPLETE_LONGS::N_VALUES - 1; i++) {
+      auto ret = parser.parse(p, n);
 
-//     // Second reading
-//     {
-//       parser.reset();
-//       auto ret = parser.parse(p, n);
+      CHECK_EQ(ret, ParseResult::SUCCESS);
+      CHECK_EQ(parser.get(), INCOMPLETE_LONGS::VALUES[i]);
+      CHECK_EQ(n, INCOMPLETE_LONGS::LENGTH - (i + 1) * sizeof(int64_t));
+    }
 
-//       CHECK_EQ(ret, ParseResult::SUCCESS);
-//       CHECK_EQ(parser.get(), LONG_2.value);
-//       CHECK_EQ(n, N - 2 * sizeof(int64_t));
-//     }
+    // Incomplete reading
+    {
+      auto ret = parser.parse(p, n);
 
-//     // Third reading
-//     {
-//       parser.reset();
-//       auto ret = parser.parse(p, n);
-
-//       CHECK_EQ(ret, ParseResult::UNFINISHED);
-//       CHECK_EQ(parser.get(), 0);
-//       CHECK_EQ(n, 0);
-//     }
-//   }
-//   // --------------------------------------------------------------------------
-//   SUBCASE("[NEGATIVE_LONG] Parse of byte of negative value") {
-
-//     auto *p = static_cast<const StreamChar *>(NEGATIVE_LONG.STREAM);
-//     auto n = NEGATIVE_LONG.STREAM_LENGTH;
-
-//     parser.reset();
-//     auto ret = parser.parse(p, n);
-
-//     CHECK_EQ(ret, ParseResult::SUCCESS);
-//     CHECK_LT(parser.get(), 0);
-//     CHECK_LT(LONG_3.value, 0);
-//     CHECK_EQ(parser.get(), LONG_3.value);
-//     CHECK_EQ(n, 0);
-//   }
-// }
+      CHECK_EQ(ret, ParseResult::UNFINISHED);
+      CHECK_EQ(parser.get(),
+               INCOMPLETE_LONGS::VALUES[INCOMPLETE_LONGS::N_VALUES - 1]);
+      CHECK_EQ(n, 0);
+    }
+  }
+}
