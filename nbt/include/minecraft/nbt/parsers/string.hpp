@@ -13,6 +13,7 @@
 #define SOLISMC_NBT_PARSER_STRING_HPP
 
 #include "minecraft/nbt/parsers/integral.hpp"
+#include <cstdint>
 #include <string>
 
 namespace minecraft::nbt {
@@ -24,23 +25,30 @@ template <> struct BytesParser<std::string> {
 
   ParseResult parse(const StreamChar *&, unsigned long &);
 
-  std::string get() const { return parsed_ ? value_ : EMPTY_STR; }
+  std::string get() const { return is_parsed() ? value_ : EMPTY_STR; }
+
+  /**
+   * @brief Get the parsed length of the string or 0 if unfinished
+   */
+  uint16_t get_length() const { return size_parser_.get(); }
 
   inline void reset() {
     size_parser_.reset();
     n_bytes = 0;
-    value_ = std::string(nullptr);
-    size_parsed_ = false;
+    value_.resize(0);
     parsed_ = false;
+    size_parsed_ = false;
   }
+
+  inline bool is_parsed() const { return size_parsed_ && parsed_; }
 
 private:
   static constexpr std::string EMPTY_STR{};
   std::string value_;
-  BytesParser<int16_t> size_parser_;
+  BytesParser<uint16_t> size_parser_;
   std::size_t n_bytes;
-  bool size_parsed_;
-  bool parsed_;
+  bool size_parsed_ = false;
+  bool parsed_ = false;
 };
 
 // ============================================================================

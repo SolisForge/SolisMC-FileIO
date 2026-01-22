@@ -1,4 +1,6 @@
 ctype: int16_t
+include:
+  - cstdint
 values:
   short1: 10
   short2: 596
@@ -19,7 +21,7 @@ streams:
       - short1
       - big_short
   INCOMPLETE_SHORTS:
-    incomplete: true
+    incomplete: 1
     values:
       - short1
       - big_short

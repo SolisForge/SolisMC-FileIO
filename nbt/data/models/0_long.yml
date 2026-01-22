@@ -1,4 +1,6 @@
 ctype: int64_t
+include:
+  - cstdint
 values:
   long1: 10
   long2: 596
@@ -19,7 +21,7 @@ streams:
       - long1
       - big_long
   INCOMPLETE_LONGS:
-    incomplete: true
+    incomplete: 1
     values:
       - long1
       - big_long

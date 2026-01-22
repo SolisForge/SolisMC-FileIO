@@ -1,4 +1,6 @@
 ctype: int32_t
+include:
+  - cstdint
 values:
   int1: 10
   int2: 347
@@ -19,7 +21,7 @@ streams:
       - int1
       - big_int
   INCOMPLETE_INTS:
-    incomplete: true
+    incomplete: 1
     values:
       - int1
       - big_int

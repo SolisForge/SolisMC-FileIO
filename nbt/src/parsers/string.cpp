@@ -18,15 +18,15 @@ namespace minecraft::nbt {
 ParseResult BytesParser<std::string>::parse(const StreamChar *&strm,
                                             unsigned long &N) {
   // Reset parser if new parse
-  if (size_parsed_ && parsed_)
+  if (is_parsed())
     reset();
 
   // Read the length of the string
   if (!size_parsed_) {
     if (auto ret = size_parser_.parse(strm, N); ret != ParseResult::SUCCESS)
       return ret;
-    size_parsed_ = true;
     value_.resize(size_parser_.get());
+    size_parsed_ = true;
   }
 
   // Read string characters one by one

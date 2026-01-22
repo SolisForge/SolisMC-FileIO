@@ -24,12 +24,14 @@ template <std::integral T> struct BytesParser<T> {
 
   ParseResult parse(const StreamChar *&strm, unsigned long &N);
 
-  inline T get() const { return (n_bytes == 0) ? value_ : 0; }
+  inline T get() const { return is_parsed() ? value_ : 0; }
 
   inline void reset() {
     value_ = 0;
     n_bytes = 0;
   }
+
+  inline bool is_parsed() const { return n_bytes == 0; }
 
 private:
   T value_;
@@ -41,9 +43,13 @@ private:
 // Specialization definition
 // ============================================================================
 extern template struct BytesParser<int8_t>;
+extern template struct BytesParser<uint8_t>;
 extern template struct BytesParser<int16_t>;
+extern template struct BytesParser<uint16_t>;
 extern template struct BytesParser<int32_t>;
+extern template struct BytesParser<uint32_t>;
 extern template struct BytesParser<int64_t>;
+extern template struct BytesParser<uint64_t>;
 
 } // namespace minecraft::nbt
 

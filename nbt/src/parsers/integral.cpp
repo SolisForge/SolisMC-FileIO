@@ -18,7 +18,7 @@ template <std::integral T>
 ParseResult BytesParser<T>::parse(const StreamChar *&strm, unsigned long &N) {
   // Reset parser before parsing a new value (to prevent the calling of
   // reset() by other programs)
-  if (n_bytes == 0)
+  if (is_parsed())
     reset();
 
   NBT_PARSE_N_BYTE_BEGIN()
@@ -39,7 +39,11 @@ ParseResult BytesParser<T>::parse(const StreamChar *&strm, unsigned long &N) {
 
 // Force definition of these ByteParser in this library
 template struct BytesParser<int8_t>;
+template struct BytesParser<uint8_t>;
 template struct BytesParser<int16_t>;
+template struct BytesParser<uint16_t>;
 template struct BytesParser<int32_t>;
+template struct BytesParser<uint32_t>;
 template struct BytesParser<int64_t>;
+template struct BytesParser<uint64_t>;
 } // namespace minecraft::nbt
