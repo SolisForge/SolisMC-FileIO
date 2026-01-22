@@ -10,11 +10,13 @@
 #           Distributed under MIT License (https://opensource.org/licenses/MIT)
 # =============================================================================
 
+from .ctypes import CType
 from dataclasses import dataclass, field
 from logging import getLogger
 from pathlib import Path
 from solis.utils.types.patterns import LazyInit
 from typing import Any, Generic, TypeVar
+from .type_mapping import to_py_type
 import yaml
 
 _T = TypeVar("_T")
@@ -28,7 +30,7 @@ class StreamConfig:
     Configuration of a stream
     """
 
-    incomplete: bool = False
+    incomplete: int = 0
     values: list[str] = field(default_factory=list)
 
 
@@ -39,7 +41,7 @@ class DatasetConfig(Generic[_T]):
     Loaded dataset configuration file
     """
 
-    cpp_type_: str
+    cpp_type_: CType
     """ The c++ type of the value """
     py_type: type[_T]
     """ The python equivalent of the type """
@@ -47,6 +49,8 @@ class DatasetConfig(Generic[_T]):
     """ Declared values of this type """
     streams: dict[str, StreamConfig] = field(default_factory=dict)
     """ Streams configurations as pair (name of the stream, list of value names) """
+    includes: list[str] = field(default_factory=list)
+    """ Additional includes for this header """
 
 
 # =============================================================================
@@ -58,16 +62,22 @@ def read_from_file(file_in: Path) -> DatasetConfig:
         content: dict[str, Any] = yaml.safe_load(handle)  # type: ignore
 
         # Get values from the config
-        ctype: str = str(content["ctype"])
-        pytype = get_pytype_from_ctype(ctype)
+        ctype = CType(str(content["ctype"]))
+        pytype = to_py_type(ctype)
 
         config = DatasetConfig(ctype, pytype)
 
+        # Read additional includes
+        config.includes = content.get("include", [])
+
+        # Read values
         config.values = (
             {}
             if (values := content["values"]) is None
             else _normalize_values(pytype, values)
         )
+
+        # Read streams
         _parse_stream_content(
             {} if (streams := content["streams"]) is None else streams, config
         )
@@ -93,7 +103,7 @@ def _parse_stream_content(stream: dict[str, dict], config: DatasetConfig) -> Non
 
         # Read stream flags
         if "incomplete" in stream_content.keys():
-            strm.incomplete = bool(stream_content["incomplete"])
+            strm.incomplete = int(stream_content["incomplete"])
 
         # Check values names
         for value in stream_content["values"]:
@@ -105,19 +115,3 @@ def _parse_stream_content(stream: dict[str, dict], config: DatasetConfig) -> Non
         else:
             strm.values = stream_content["values"]
         config.streams[stream_name] = strm
-
-
-# =============================================================================
-def get_pytype_from_ctype(ctype: str) -> type:
-    """
-    Get the py type from the given ctype
-    """
-    match ctype:
-        case "int8_t" | "int16_t" | "int32_t" | "int64_t":
-            return int
-        case "float" | "double":
-            return float
-        case "intarray" | "longarray" | "bytearray":
-            return list[int]
-        case _:
-            return dict

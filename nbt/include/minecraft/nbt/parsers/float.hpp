@@ -46,12 +46,14 @@ template <std::floating_point T> struct BytesParser<T> {
 
   ParseResult parse(const StreamChar *&strm, unsigned long &N);
 
-  T get() const { return parsed_ ? value_ : 0.0; }
+  T get() const { return is_parsed() ? value_ : 0.0; }
 
   inline void reset() {
     value_ = 0;
     int_parser_.reset();
   }
+
+  inline bool is_parsed() const { return parsed_; }
 
 private:
   T value_;
@@ -60,7 +62,7 @@ private:
 };
 
 // ============================================================================
-// Specialization definition
+// Specialization export in this library
 // ============================================================================
 extern template struct BytesParser<float>;
 extern template struct BytesParser<double>;

@@ -1,0 +1,26 @@
+ctype: std::string_view
+include:
+  - string_view
+values:
+  str1: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget.
+  str2: >-
+    Etiam tortor sapien, semper vitae nibh a, dictum viverra lacus. Vestibulum velit ligula, hendrerit eu enim vel, 
+    rutrum sollicitudin lacus. Aenean euismod porttitor lectus. Aliquam vel sapien nec mauris egestas posuere sed at ante. 
+    Nulla faucibus diam consequat lacus pharetra imperdiet. Aliquam imperdiet nec orci eget placerat. In libero purus, egestas vel metus a, 
+    molestie posuere turpis.
+streams:
+  SHORT_STR:
+    values:
+      - str1
+  LONG_STR:
+    values:
+      - str2
+  MULTIPLE_STRS:
+    values:
+      - str1
+      - str2
+  INCOMPLETE_STRS:
+    incomplete: 5
+    values:
+      - str1
+      - str2

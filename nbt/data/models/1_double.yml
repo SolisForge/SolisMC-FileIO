@@ -22,7 +22,7 @@ streams:
       - double1
       - big_double
   INCOMPLETE_DOUBLES:
-    incomplete: true
+    incomplete: 1
     values:
       - double1
       - big_double

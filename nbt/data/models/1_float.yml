@@ -22,7 +22,7 @@ streams:
       - float1
       - big_float
   INCOMPLETE_FLOATS:
-    incomplete: true
+    incomplete: 1
     values:
       - float1
       - big_float
