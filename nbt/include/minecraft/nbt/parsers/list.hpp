@@ -32,8 +32,17 @@ template <typename T> struct BytesParser<std::vector<T>> {
    * nullptr otherwise.
    */
   std::shared_ptr<std::vector<T>> get() const {
-    return parsed_[0] && parsed_[1] ? p_value_ : nullptr;
+    return is_parsed() ? p_value_ : nullptr;
   }
+
+  /**
+   * @brief Get the parsed size of the array
+   */
+  std::size_t get_length() const {
+    return is_parsed() ? size_parser_.get() : 0;
+  }
+
+  bool is_parsed() const { return parsed_[0] && parsed_[1]; }
 
   inline void reset() {
     size_parser_.reset();

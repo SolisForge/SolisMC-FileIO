@@ -10,13 +10,13 @@
 #           Distributed under MIT License (https://opensource.org/licenses/MIT)
 # =============================================================================
 
-from .ctypes import CType
 from dataclasses import dataclass, field
 from logging import getLogger
 from pathlib import Path
 from solis.utils.types.patterns import LazyInit
+from ._types import CType, is_value_loaded
 from typing import Any, Generic, TypeVar
-from .type_mapping import to_py_type
+from ._types.mapping import to_py_type
 import yaml
 
 _T = TypeVar("_T")
@@ -62,7 +62,7 @@ def read_from_file(file_in: Path) -> DatasetConfig:
         content: dict[str, Any] = yaml.safe_load(handle)  # type: ignore
 
         # Get values from the config
-        ctype = CType(str(content["ctype"]))
+        ctype = CType.from_str(str(content["ctype"]))
         pytype = to_py_type(ctype)
 
         config = DatasetConfig(ctype, pytype)
@@ -107,7 +107,7 @@ def _parse_stream_content(stream: dict[str, dict], config: DatasetConfig) -> Non
 
         # Check values names
         for value in stream_content["values"]:
-            if value not in config.values.keys():
+            if value not in config.values.keys() and not is_value_loaded(value):
                 LOGGER().warning(
                     f"Stream {stream_name} requires non-existing value {value}"
                 )

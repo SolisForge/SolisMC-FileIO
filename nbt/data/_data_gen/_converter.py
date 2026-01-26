@@ -10,12 +10,18 @@
 #           Distributed under MIT License (https://opensource.org/licenses/MIT)
 # =============================================================================
 
-from .ctypes import CType
 from functools import singledispatch
 from pathlib import Path
 from ._reader import DatasetConfig, StreamConfig
-from random import randint
-from .type_mapping import default_value, fmt_value, to_byte
+from ._types import ByteStream, _CType, CType, get_value, register_value
+from ._types.mapping import (
+    default_value,
+    fmt_value,
+    fmt_value_for_stream,
+    fmt_type,
+    fmt_type_for_stream,
+    to_byte,
+)
 
 
 # =============================================================================
@@ -30,13 +36,9 @@ def generate_header(config: DatasetConfig, name: str, output_file: Path) -> None
 
         # Export values
         handle.write(_add_section("Exporting values"))
-        values_strm: dict[str, tuple[int, str]] = {}
         for val_name, val_value in config.values.items():
-            length, hex_strm, gen_code = _export_value(
-                val_value, val_name, config.cpp_type_
-            )
-            handle.write(gen_code)
-            values_strm[val_name] = (length, hex_strm)
+
+            handle.write(_export_value(val_value, val_name, config.cpp_type_))
 
         # Export streams
         handle.write(_add_section("Exporting streams"))
@@ -46,7 +48,6 @@ def generate_header(config: DatasetConfig, name: str, output_file: Path) -> None
                     strm_name,
                     strm_config,
                     config.cpp_type_,
-                    values_strm,
                 )
             )
 
@@ -97,90 +98,103 @@ def _gen_guard_exit() -> str:
 # =============================================================================
 # Stream exporter
 # =============================================================================
-def _export_stream(
-    name: str,
-    strm: StreamConfig,
-    ctype: CType,
-    values_strm: dict[str, tuple[int, str]],
-) -> str:
-    """Export the given stream"""
-    final_strm_length = 0
-    final_strm_parts: list[str] = []
-    final_values: list[str] = []
-    final_values_length: list[str] = []
-    for v in strm.values:
-        final_strm_length += values_strm[v][0]
-        final_strm_parts.append(values_strm[v][1])
-        final_values.append(f"VALUE_{v.upper()}::VALUE")
-        final_values_length.append(f"VALUE_{v.upper()}::LENGTH")
-    final_strm = ",".join(final_strm_parts)
-
-    # Remove some bytes as needed
-    if strm.incomplete > 0:
-        # Remove one byte of shape ",(UC)'\x00'" (11 chars)
-        final_strm = final_strm[: -11 * strm.incomplete]
-        final_strm_length -= strm.incomplete
-        final_values[-1] = default_value(ctype)
-
-    return f"""struct {name.upper()} {{
-    // Byte stream
-    static constexpr const UC STREAM[{final_strm_length}] {{{final_strm}}};
-    static constexpr unsigned long LENGTH {{{final_strm_length}}};
-    
-    // Values
-    static constexpr unsigned long N_VALUES {{{len(final_values)}}};
-    static constexpr std::array<{ctype.value}, {len(final_values)}> VALUES {{{", ".join(final_values)}}};
-    static constexpr std::array<std::size_t, {len(final_values_length)}> VALUES_LENGTH {{{", ".join(final_values_length)}}};
-}};
-"""
-
-
-# =============================================================================
 def __to_uchar_array(t: bytes) -> str:
     return ",".join([f"(UC)'\\x{c:>02x}'" for c in t])
 
 
 # =============================================================================
-def __mk_value_struct(
-    _name: str, _v: str, _b: bytes, _l: int, _ctype: CType
-) -> tuple[str, str]:
+def _export_stream(
+    name: str,
+    strm: StreamConfig,
+    ctype: CType,
+) -> str:
+    """Export the given stream"""
+    stream = ByteStream()
+    for v in strm.values:
+        value = get_value(v)
+        stream.length_ += len(value.stream)
+        stream.values_.append(fmt_value_for_stream(f"VALUE_{v.upper()}::VALUE", ctype))
+        stream.bytes_ += value.stream
+        stream.values_length_.append(f"VALUE_{v.upper()}::LENGTH")
+
+    # Remove some bytes as needed
+    if strm.incomplete > 0:
+        stream.bytes_ = stream.bytes_[: -strm.incomplete]
+        stream.length_ -= strm.incomplete
+        stream.values_[-1] = default_value(ctype)
+
+    # Construct final structure
+    final_str = __to_uchar_array(stream.bytes_)
+    return f"""struct {name.upper()} {{
+    // Byte stream
+    static constexpr const UC STREAM[{stream.length_}] {{{final_str}}};
+    static constexpr unsigned long LENGTH {{{len(stream.bytes_)}}};
+    
+    // Values
+    static constexpr unsigned long N_VALUES {{{len(stream.values_)}}};
+    static constexpr std::array<{fmt_type_for_stream(ctype)}, {len(stream.values_length_)}> VALUES {{{", ".join(stream.values_)}}};
+    static constexpr std::array<std::size_t, {len(stream.values_length_)}> VALUES_LENGTH {{{", ".join(stream.values_length_)}}};
+}};
+"""
+
+
+# =============================================================================
+def __mk_value_struct(_name: str, _v: str, _b: bytes, _l: int, _ctype: CType) -> str:
     """
     Return the C++ struct containing the value.
     """
     strm = __to_uchar_array(_b)
-    return (
-        strm,
-        f"""struct VALUE_{_name.upper()} {{
-    static constexpr {_ctype.value} VALUE {{{_v}}};
+    return f"""struct VALUE_{_name.upper()} {{
+    static constexpr {fmt_type('VALUE', _ctype, _l)} {{{_v}}};
     static constexpr std::size_t LENGTH {{{_l}}};
     static constexpr const UC BYTES[{len(_b)}] {{{strm}}};
 }};
-""",
-    )
+"""
 
 
 # =============================================================================
 @singledispatch
-def _export_value(value, name: str, ctype: CType) -> tuple[int, str, str]:
+def _export_value(value, name: str, ctype: CType) -> str:
     """Export the given value and its char representation"""
     B = to_byte(value, ctype)
     V = fmt_value(value, ctype)
+    register_value(name, ctype, value, B)
 
-    return (len(B), *__mk_value_struct(name, V, B, len(B), ctype))
+    return __mk_value_struct(name, V, B, len(B), ctype)
 
 
 @_export_value.register
-def _(value: str, name: str, ctype: CType) -> tuple[int, str, str]:
+def _(value: str, name: str, ctype: CType) -> str:
     """Export the given string value"""
-    LB = to_byte(len(value), CType.SHORT)
+    LB = to_byte(len(value), ctype=CType(_CType.SHORT))
     B = to_byte(value, ctype)
-    return (
-        len(LB) + len(B),
-        *__mk_value_struct(
-            name,
-            fmt_value(value, ctype),
-            LB + B,
-            len(B),
-            ctype,
-        ),
+    register_value(name, ctype, value, LB + B)
+    return __mk_value_struct(
+        name,
+        fmt_value(value, ctype),
+        LB + B,
+        len(B),
+        ctype,
+    )
+
+
+@_export_value.register
+def _(value: list, name: str, ctype: CType) -> str:
+    """
+    Value export for lists
+    """
+    # Get bytes for array length
+    B = to_byte(len(value), CType(_CType.INT))
+
+    # Extract bytes for all elements
+    for v in value:
+        B += to_byte(v, ctype.list_spec)
+
+    register_value(name, ctype, value, B)
+    return __mk_value_struct(
+        name,
+        fmt_value(value, ctype),
+        B,
+        len(value),
+        ctype,
     )

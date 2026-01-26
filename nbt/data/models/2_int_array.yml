@@ -1,0 +1,35 @@
+ctype: std::vector<int32_t>
+include:
+  - cstdint
+  - vector
+values:
+  vec1:
+    - -26
+    - 9371556
+    - 892
+    - -52464
+    - 25651651
+  vec2:
+    - 12346546
+    - -13168484
+    - 16545
+    - 65
+    - 13212313
+    - -0
+    - 8
+streams:
+  INT_VEC1:
+    values:
+      - vec1
+  INT_VEC2:
+    values:
+      - vec2
+  MULTIPLE_INT_VECS:
+    values:
+      - vec1
+      - vec2
+  INCOMPLETE_INT_VECS:
+    incomplete: 1
+    values:
+      - vec1
+      - vec2

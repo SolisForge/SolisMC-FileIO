@@ -10,11 +10,12 @@
 #           Distributed under MIT License (https://opensource.org/licenses/MIT)
 # =============================================================================
 from collections.abc import Callable
+from dataclasses import dataclass
 from enum import Enum
 
 
 # =============================================================================
-class CType(Enum):
+class _CType(Enum):
     """
     Enumeration of supported ctypes for this dataset generator.
     """
@@ -31,6 +32,9 @@ class CType(Enum):
 
     # Others
     STRING = "std::string_view"
+
+    # Arrays
+    LIST = "std::vector"
 
     # -------------------------------------------------------------------------
     def get_byte_length(self) -> int:
@@ -55,6 +59,32 @@ class CType(Enum):
             # Unsupported
             case _:
                 raise TypeError(f"Type {self.value} has no fixed value length")
+
+
+# =============================================================================
+@dataclass
+class CType:
+
+    spec_: _CType
+    _list_spec_: _CType = _CType.BYTE
+
+    # -------------------------------------------------------------------------
+    @staticmethod
+    def from_str(t_str: str) -> "CType":
+        """
+        Construct a type from its string representation
+        """
+        # In case of arrays
+        if t_str.startswith("std::vector<"):
+            spec = t_str.removeprefix("std::vector<").removesuffix(">")
+            return CType(_CType.LIST, _CType(spec))
+        # Default to standard values
+        return CType(_CType(t_str))
+
+    # -------------------------------------------------------------------------
+    @property
+    def list_spec(self) -> "CType":
+        return CType(self._list_spec_)
 
 
 # =============================================================================

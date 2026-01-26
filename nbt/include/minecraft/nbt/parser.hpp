@@ -14,6 +14,7 @@
 
 #include "minecraft/nbt/parsers/float.hpp"    // IWYU pragma: keep
 #include "minecraft/nbt/parsers/integral.hpp" // IWYU pragma: keep
+#include "minecraft/nbt/parsers/list.hpp"     // IWYU pragma: keep
 #include "minecraft/nbt/parsers/string.hpp"   // IWYU pragma: keep
 
 #endif
