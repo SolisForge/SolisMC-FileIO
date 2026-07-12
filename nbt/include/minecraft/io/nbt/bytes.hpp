@@ -17,6 +17,7 @@
 #include "minecraft/io/nbt/bytes/interface.hpp"
 #include "minecraft/io/nbt/bytes/list.hpp"   // IWYU pragma: keep
 #include "minecraft/io/nbt/bytes/string.hpp" // IWYU pragma: keep
+#include "minecraft/io/nbt/bytes/struct.hpp" // IWYU pragma: keep
 
 namespace minecraft::nbt {
 

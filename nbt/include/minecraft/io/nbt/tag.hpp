@@ -63,7 +63,7 @@ constexpr Tag from_int(const uint8_t v) {
 
 // ============================================================================
 
-constexpr char *to_str(const Tag tag) {
+constexpr const char *to_str(const Tag tag) {
 // Define X macro
 #define X(name, ...)                                                           \
   case Tag::name:                                                              \
