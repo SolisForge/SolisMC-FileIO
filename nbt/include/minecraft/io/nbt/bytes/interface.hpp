@@ -79,9 +79,7 @@ struct ByteParserInterface {
  * @tparam typename
  * @tparam GameVersion
  */
-template <typename, GameVersion> struct ByteParser {
-  static_assert(false, "The parser for this type was not implemented");
-};
+template <typename, GameVersion> struct ByteParser;
 
 // ============================================================================
 
@@ -118,9 +116,7 @@ struct ByteWriterInterface {
  * @tparam typename
  * @tparam GameVersion
  */
-template <typename, GameVersion> struct ByteWriter {
-  static_assert(false, "The writer for this type was not implemented");
-};
+template <typename, GameVersion> struct ByteWriter;
 
 // ============================================================================
 // Concepts
