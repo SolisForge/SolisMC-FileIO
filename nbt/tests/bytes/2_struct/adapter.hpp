@@ -9,6 +9,7 @@
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
+#include "minecraft/io/nbt/bytes/field_value.hpp"
 #include "minecraft/io/nbt/bytes/struct.hpp"
 #include "object.hpp"
 #include <cstring>
@@ -31,12 +32,13 @@ struct TestObjectWriteAdapter : WriteAdapter {
     return FieldState::EXIST;
   }
 
-  void set_field(const FieldInfo &info, void *v) override {
+  void set_field(const FieldInfo &info, const FieldValue &v) override {
+
     if (info.name.compare("name") == 0) {
-      value->name = std::string{(const char *)(v)};
+      value->name = std::string{v.as<std::string>()};
       return;
     } else if (info.name.compare("foo") == 0) {
-      value->foo = *(int *)(v);
+      value->foo = v.as<int>();
       return;
     }
   }

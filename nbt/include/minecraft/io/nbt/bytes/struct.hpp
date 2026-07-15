@@ -9,6 +9,9 @@
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
+#ifndef SOLISMC_NBT_BYTE_PARSING_STRUCT
+#define SOLISMC_NBT_BYTE_PARSING_STRUCT
+#include "minecraft/io/nbt/bytes/field_value.hpp"
 #include "minecraft/io/nbt/tag.hpp"
 #include <iterator>
 #include <string>
@@ -16,6 +19,8 @@
 
 namespace minecraft::nbt::byte {
 
+// ============================================================================
+// Field information
 // ============================================================================
 struct FieldInfo {
   std::string name;
@@ -25,6 +30,8 @@ struct FieldInfo {
 // ============================================================================
 enum class FieldState : uint8_t { EXIST = 0, WRONG_TYPE = 1, DO_NOT_EXIST = 2 };
 
+// ============================================================================
+// Adapter interfaces
 // ============================================================================
 struct WriteAdapter {
   virtual ~WriteAdapter() = default;
@@ -38,7 +45,7 @@ struct WriteAdapter {
    * @param info which field to set
    * @param value a pointer to the value to set
    */
-  virtual void set_field(const FieldInfo &info, void *value) = 0;
+  virtual void set_field(const FieldInfo &info, const FieldValue &value) = 0;
 };
 
 // ============================================================================
@@ -58,3 +65,4 @@ struct ReadAdapter {
 };
 
 } // namespace minecraft::nbt::byte
+#endif

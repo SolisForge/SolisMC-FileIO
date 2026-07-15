@@ -37,4 +37,35 @@ TEST_CASE("WriteAdapter::is_field") {
   }
 }
 
+TEST_CASE("WriteAdapter::set_field") {
+  auto obj = std::make_shared<TestObject>();
+  TestObjectWriteAdapter adapt{obj};
+
+  SUBCASE("Setting int value") {
+    FieldInfo info{"foo", Tag::INT};
+    FieldValue value{10};
+
+    CHECK_EQ(obj->foo, 0);
+    adapt.set_field(info, value);
+    CHECK_EQ(obj->foo, 10);
+  }
+  SUBCASE("Setting value of wrong type") {
+    FieldInfo info{"foo", Tag::INT};
+    FieldValue value{std::string{}};
+
+    CHECK_EQ(obj->foo, 0);
+    CHECK_THROWS(adapt.set_field(info, value));
+  }
+  SUBCASE("Setting string value") {
+    FieldInfo info{"name", Tag::STRING};
+    std::string new_value{"test object"};
+    FieldValue value{new_value};
+
+    CHECK_EQ(obj->name.size(), 0);
+    adapt.set_field(info, value);
+    CHECK_EQ(obj->name.size(), new_value.size());
+    CHECK_EQ(new_value.compare(obj->name), 0);
+  }
+}
+
 } // namespace minecraft::nbt
