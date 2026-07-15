@@ -39,11 +39,21 @@ enum class ParserState : uint8_t { TAG, NAME, COMPLETE };
  * @tparam Adapter adapter to fill the C++ structure
  * @tparam GV the GameVersion to use
  */
-template <WriterAdapterImplementation Adapter, GameVersion GV>
+template <typename C, WriterAdapterImplementation Adapter, GameVersion GV>
 struct ObjectParser : ByteParserInterface {
 
-  explicit ObjectParser<Adapter, GV>(Adapter &apt)
-      : ByteParserInterface(), adapter_(apt) {}
+  /**
+   * @brief Construct a new parser with a new internally initialized object
+   */
+  explicit ObjectParser<C, Adapter, GV>()
+      : ByteParserInterface(), object_(std::make_shared<C>()),
+        adapter_(Adapter(object_)) {}
+
+  /**
+   * @brief Construct a new parser with a provided initialized object
+   */
+  ObjectParser<C, Adapter, GV>(std::shared_ptr<C> obj)
+      : ByteParserInterface(), object_(obj), adapter_(Adapter(object_)) {}
 
   /**
    * @brief Parse the object from the given byte stream
@@ -89,9 +99,11 @@ struct ObjectParser : ByteParserInterface {
    */
   void reset() override { state_.reset(); };
 
-  FieldValue get_value() const override { return FieldValue(std::nullptr_t{}); }
+  std::shared_ptr<C> get() const { return object_; }
+  FieldValue get_value() const override { return FieldValue(get()); }
 
 protected:
+  std::shared_ptr<C> object_;
   Adapter adapter_;
   StringByteParser<GV> name_parser_;
   std::unique_ptr<ByteParserInterface> value_parser_ = std::nullptr_t{};

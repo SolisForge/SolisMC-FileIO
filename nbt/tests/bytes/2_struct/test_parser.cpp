@@ -17,9 +17,8 @@ using namespace minecraft::nbt::byte::base;
 using namespace minecraft::nbt;
 
 TEST_CASE("ByteParser<C++ Object>") {
-  auto obj = std::make_shared<TestObject>(std::string{}, 0);
-  TestObjectWriteAdapter adapter{obj};
-  ObjectParser<TestObjectWriteAdapter, GameVersion::JAVA> parser{adapter};
+  ObjectParser<TestObject, TestObjectWriteAdapter, GameVersion::JAVA> parser{};
+  auto obj = parser.get();
 
   // Normal case
   SUBCASE("Normal parsing of whole object") {
