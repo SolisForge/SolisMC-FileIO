@@ -13,9 +13,11 @@
 #include <doctest/doctest.h>
 #include <memory>
 
+using namespace minecraft::nbt::byte::base;
+
 const std::map<std::string, minecraft::nbt::Tag>
     TestObjectWriteAdapter::fields = {{"name", minecraft::nbt::Tag::STRING},
-                                      {"index", minecraft::nbt::Tag::INT}};
+                                      {"foo", minecraft::nbt::Tag::INT}};
 
 namespace minecraft::nbt {
 

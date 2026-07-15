@@ -20,12 +20,26 @@
 #include <type_traits>
 #include <vector>
 
-namespace minecraft::nbt::byte {
+namespace minecraft::nbt::byte::base {
+
+// ============================================================================
+
+/**
+ * @brief Identity of a field
+ */
+struct FieldInfo {
+  std::string name;
+  Tag tag;
+};
 
 // ============================================================================
 // Any value implementation
 // ============================================================================
 
+/**
+ * @brief Object containing an object of any value
+ *
+ */
 struct FieldValue {
   explicit FieldValue(const std::any &v) : value(v) {}
   ~FieldValue() = default;
@@ -36,5 +50,5 @@ protected:
   std::any value;
 };
 
-} // namespace minecraft::nbt::byte
+} // namespace minecraft::nbt::byte::base
 #endif

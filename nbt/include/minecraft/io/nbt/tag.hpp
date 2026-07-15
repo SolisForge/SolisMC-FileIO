@@ -71,6 +71,8 @@ constexpr const char *to_str(const Tag tag) {
 
   switch (tag) {
 #include ".xmacros/x_nbt.hpp"
+  default:
+    return "UNKNOWN";
   }
 #undef X
 }

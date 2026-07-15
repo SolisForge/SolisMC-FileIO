@@ -40,6 +40,8 @@ struct IntegralByteParser : public ByteParserInterface {
    */
   inline T get() const { return (is_done()) ? value : 0; }
 
+  inline FieldValue get_value() const override { return FieldValue(get()); }
+
 private:
   T value{0};
   uint8_t read_bytes{0};

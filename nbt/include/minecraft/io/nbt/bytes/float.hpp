@@ -20,12 +20,8 @@
 namespace minecraft::nbt::byte::base {
 
 template <std::floating_point T> struct IntBuffer;
-template <> struct IntBuffer<float> {
-  using T = int32_t;
-};
-template <> struct IntBuffer<double> {
-  using T = int64_t;
-};
+template <> struct IntBuffer<float> { using T = int32_t; };
+template <> struct IntBuffer<double> { using T = int64_t; };
 
 // ============================================================================
 
@@ -47,7 +43,9 @@ struct FloatByteParser : public ByteParserInterface {
   /**
    * @brief Get the read value if the parser is done, else 0
    */
-  inline T get() { return (is_done()) ? value : 0; }
+  inline T get() const { return (is_done()) ? value : 0; }
+
+  inline FieldValue get_value() const override { return FieldValue(get()); }
 
 private:
   T value{0};

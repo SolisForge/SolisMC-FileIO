@@ -67,9 +67,11 @@ struct ListByteParser : public ByteParserInterface {
   /**
    * @brief Get the read value if the parser is done, else 0
    */
-  inline std::vector<T> get() {
+  inline std::vector<T> get() const {
     return (is_done()) ? std::move(value) : std::vector<T>{};
   }
+
+  inline FieldValue get_value() const override { return FieldValue(get()); }
 
 private:
   IntegralByteParser<uint32_t, GV> size_parser;
