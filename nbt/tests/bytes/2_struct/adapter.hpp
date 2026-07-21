@@ -12,7 +12,7 @@
 #include "minecraft/io/nbt/bytes.hpp"
 #include "minecraft/io/nbt/bytes/field.hpp"
 #include "minecraft/io/nbt/bytes/interface.hpp"
-#include "minecraft/io/nbt/bytes/struct_adapter.hpp"
+#include "minecraft/io/nbt/bytes/struct/adapter.hpp"
 #include "object.hpp"
 #include <cstddef>
 #include <cstring>

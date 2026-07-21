@@ -13,6 +13,7 @@
 #define SOLISMC_IO_NBT_COMMON_INTERFACE
 
 #include "minecraft/io/nbt/bytes/field.hpp"
+#include "minecraft/io/nbt/tag.hpp"
 #include <bit>
 #include <cstdint>
 #include <solis/utils/macros.hpp>
@@ -56,6 +57,8 @@ namespace byte::base {
  * @brief Interface for the NBT byte parser implementations
  */
 struct ByteParserInterface {
+
+  using UniquePtr = std::unique_ptr<ByteParserInterface>;
 
   virtual ~ByteParserInterface() = default;
 

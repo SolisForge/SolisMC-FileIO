@@ -1,59 +1,56 @@
 // ============================================================================
 // Project: SOLISMC-FILEIO
 //
-// C++ struct import/export logic
+// Common interface for C++ & compound parsers
 //
 // Author    Meltwin (github@meltwin.fr)
-// Date      12/07/2026 (created 12/07/2026)
+// Date      21/07/2026 (created 21/07/2026)
 // Version   1.0.0
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
-#ifndef SOLISMC_NBT_BYTE_PARSING_STRUCT_PARSER
-#define SOLISMC_NBT_BYTE_PARSING_STRUCT_PARSER
+#ifndef SOLISMC_NBT_BYTE_PARSING_OBJECT_PARSER_INTERFACE
+#define SOLISMC_NBT_BYTE_PARSING_OBJECT_PARSER_INTERFACE
+
 #include "minecraft/io/nbt/bytes/field.hpp"
 #include "minecraft/io/nbt/bytes/interface.hpp"
 #include "minecraft/io/nbt/bytes/string.hpp"
-#include "minecraft/io/nbt/bytes/struct_adapter.hpp"
-#include "minecraft/io/nbt/tag.hpp"
 #include <bitset>
-#include <cstddef>
-#include <iterator>
-#include <string>
-#include <type_traits>
-#include <vector>
 
 namespace minecraft::nbt::byte::base {
 
 // ============================================================================
-// Struct parser
+// Object parser
 // ============================================================================
 
 enum class ParserState : uint8_t { TAG, NAME, COMPLETE };
 
+/**
+ * @brief Struct to simplify the use of enumeration & bitset
+ */
+struct ParserStateBits {
+
+  inline void set(const ParserState v) { state_.set((uint8_t)v, true); }
+  inline void reset() { state_.reset(); }
+  inline void unset(const ParserState v) { state_.set((uint8_t)v, false); }
+
+  inline bool operator()(const ParserState v) const {
+    return state_.test((uint8_t)v);
+  }
+
+protected:
+  std::bitset<3> state_;
+};
+
 // ============================================================================
 
 /**
- * @brief Implementation of the byte parser for C++ objects.
- *
- * @tparam Adapter adapter to fill the C++ structure
- * @tparam GV the GameVersion to use
+ * @brief Common interface for a byte parser that translate a NBT (field ->
+ * value) map into a loaded object.
  */
-template <typename C, WriterAdapterImplementation Adapter, GameVersion GV>
-struct ObjectParser : ByteParserInterface {
+template <GameVersion GV> struct ObjectParserInterface : ByteParserInterface {
 
-  /**
-   * @brief Construct a new parser with a new internally initialized object
-   */
-  explicit ObjectParser<C, Adapter, GV>()
-      : ByteParserInterface(), object_(std::make_shared<C>()),
-        adapter_(Adapter(object_)) {}
-
-  /**
-   * @brief Construct a new parser with a provided initialized object
-   */
-  ObjectParser<C, Adapter, GV>(std::shared_ptr<C> obj)
-      : ByteParserInterface(), object_(obj), adapter_(Adapter(object_)) {}
+  explicit ObjectParserInterface<GV>() : ByteParserInterface() {}
 
   /**
    * @brief Parse the object from the given byte stream
@@ -71,45 +68,31 @@ struct ObjectParser : ByteParserInterface {
     while (!is_done()) {
       if (auto ret = parse_field(strm, n); ret != ParseResult::ENDED)
         return ret;
-      if (info_.tag == Tag::END) {
-        state_.set((uint8_t)ParserState::COMPLETE);
+      if (info_.tag == Tag::END)
         break;
-      }
 
       // Reset state
-      state_.set((uint8_t)ParserState::TAG, false);
-      state_.set((uint8_t)ParserState::NAME, false);
+      state_.unset(ParserState::TAG);
+      state_.unset(ParserState::NAME);
       name_parser_.reset();
       value_parser_ = std::nullptr_t{};
     }
     // Mark as done
-    state_.set((uint8_t)ParserState::COMPLETE);
+    state_.set(ParserState::COMPLETE);
     return ParseResult::ENDED;
   }
 
   /**
    * @brief Has the parser finished reading the last value
    */
-  bool is_done() const override {
-    return state_.test((uint8_t)ParserState::COMPLETE);
-  };
+  bool is_done() const override { return state_(ParserState::COMPLETE); };
 
   /**
    * @brief Reset the internal state of the parser
    */
   void reset() override { state_.reset(); };
 
-  std::shared_ptr<C> get() const { return object_; }
-  FieldValue get_value() const override { return FieldValue(get()); }
-
 protected:
-  std::shared_ptr<C> object_;
-  Adapter adapter_;
-  StringByteParser<GV> name_parser_;
-  std::unique_ptr<ByteParserInterface> value_parser_ = std::nullptr_t{};
-  FieldInfo info_;
-  std::bitset<3> state_;
-
   /**
    * @brief Parse a single field from the stream
    *
@@ -122,11 +105,11 @@ protected:
       return ParseResult::UNFINISHED;
 
     // Parse type tag information
-    if (!state_.test((uint8_t)ParserState::TAG)) {
+    if (!state_(ParserState::TAG)) {
       info_.tag = from_int(strm[0]);
       strm++;
       n--;
-      state_.set((uint8_t)ParserState::TAG);
+      state_.set(ParserState::TAG);
 
       // If end of object
       if (info_.tag == Tag::END)
@@ -134,35 +117,45 @@ protected:
     }
 
     // Parse field name
-    if (!state_.test((uint8_t)ParserState::NAME)) {
+    if (!state_(ParserState::NAME)) {
       // Reset state
       if (auto ret = name_parser_.parse(strm, n); ret != ParseResult::ENDED)
         return ret;
       info_.name = std::move(name_parser_.get());
-      state_.set((uint8_t)ParserState::NAME);
+      state_.set(ParserState::NAME);
 
-      // Get value parser by this field
-      switch (adapter_.is_field(info_)) {
-      case FieldState::WRONG_TYPE:
-        return ParseResult::WRONG_TYPE;
-      case FieldState::DO_NOT_EXIST:
-        return ParseResult::UNKNOWN_FIELD;
-      default:
-        break;
+      // Get the right parser for this field
+      if (auto ret = get_value_parser(); ret != ParseResult::ENDED) {
+        return ret;
       }
-      value_parser_ = adapter_.get_byte_parser(info_);
-
-      // TODO: use default parser for tag instead
     }
 
     // Parse field value
     if (auto ret = value_parser_->parse(strm, n); ret != ParseResult::ENDED)
       return ret;
-    adapter_.set_field(info_, value_parser_->get_value());
+    set_value();
 
     return ParseResult::ENDED;
   }
+
+  /**
+   * @brief Get the right value parser for the parsed field information
+   *
+   * @return a unique pointer to a byte parser
+   */
+  virtual ParseResult get_value_parser() = 0;
+  /**
+   * @brief Set the value into the object from the parsed value
+   */
+  virtual void set_value() = 0;
+
+protected:
+  StringByteParser<GV> name_parser_;
+  std::unique_ptr<ByteParserInterface> value_parser_ = std::nullptr_t{};
+  FieldInfo info_;
+  ParserStateBits state_;
 };
 
 } // namespace minecraft::nbt::byte::base
+
 #endif

@@ -14,9 +14,13 @@
 
 #include "minecraft/io/nbt/errors.hpp"
 #include <cstdint>
+#include <string>
+#include <vector>
 
 namespace minecraft::nbt {
 
+// ============================================================================
+// Tag definition
 // ============================================================================
 enum class Tag : uint8_t {
 #define X(name, value) name = value,
@@ -24,6 +28,26 @@ enum class Tag : uint8_t {
 #undef X
 };
 
+// ============================================================================
+// Tag <-> types
+// ============================================================================
+template <Tag T> struct TagType {};
+#define MK_TAG_TYPE_STRUCT(tag, type)                                          \
+  template <> struct TagType<Tag::tag> { using C = type; };
+MK_TAG_TYPE_STRUCT(BYTE, int8_t)
+MK_TAG_TYPE_STRUCT(SHORT, int16_t);
+MK_TAG_TYPE_STRUCT(INT, int32_t);
+MK_TAG_TYPE_STRUCT(LONG, int64_t);
+MK_TAG_TYPE_STRUCT(FLOAT, float);
+MK_TAG_TYPE_STRUCT(DOUBLE, double);
+MK_TAG_TYPE_STRUCT(BYTE_ARRAY, std::vector<int8_t>);
+MK_TAG_TYPE_STRUCT(INT_ARRAY, std::vector<int32_t>);
+MK_TAG_TYPE_STRUCT(LONG_ARRAY, std::vector<int64_t>);
+MK_TAG_TYPE_STRUCT(STRING, std::string);
+#undef MK_TAG_TYPE_STRUCT
+
+// ============================================================================
+// Tag <-> int, str, ...
 // ============================================================================
 
 /**

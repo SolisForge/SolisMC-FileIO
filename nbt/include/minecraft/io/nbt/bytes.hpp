@@ -1,7 +1,7 @@
 // ============================================================================
 // Project: SOLISMC-FILEIO
 //
-//
+// Utility classes to interact with NBT bytes streams
 //
 // Author    Meltwin (github@meltwin.fr)
 // Date      04/06/2026 (created 04/06/2026)
@@ -12,12 +12,14 @@
 #ifndef SOLISMC_IO_NBT_BYTE_PARSING
 #define SOLISMC_IO_NBT_BYTE_PARSING
 
-#include "minecraft/io/nbt/bytes/float.hpp"    // IWYU pragma: keep
-#include "minecraft/io/nbt/bytes/integral.hpp" // IWYU pragma: keep
 #include "minecraft/io/nbt/bytes/interface.hpp"
-#include "minecraft/io/nbt/bytes/list.hpp"          // IWYU pragma: keep
-#include "minecraft/io/nbt/bytes/string.hpp"        // IWYU pragma: keep
-#include "minecraft/io/nbt/bytes/struct_parser.hpp" // IWYU pragma: keep
+
+// Implementations of all parsers / writers
+#include "minecraft/io/nbt/bytes/float.hpp"                // IWYU pragma: keep
+#include "minecraft/io/nbt/bytes/integral.hpp"             // IWYU pragma: keep
+#include "minecraft/io/nbt/bytes/list.hpp"                 // IWYU pragma: keep
+#include "minecraft/io/nbt/bytes/string.hpp"               // IWYU pragma: keep
+#include "minecraft/io/nbt/bytes/struct/object_parser.hpp" // IWYU pragma: keep
 
 namespace minecraft::nbt {
 
@@ -38,6 +40,7 @@ template <typename T>
 using ByteParser = byte::base::ByteParser<T, GameVersion::BEDROCK>;
 template <typename T>
 using ByteWriter = byte::base::ByteWriter<T, GameVersion::BEDROCK>;
+
 } // namespace bedrock
 
 } // namespace minecraft::nbt

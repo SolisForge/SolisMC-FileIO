@@ -23,6 +23,10 @@ enum class FieldState : uint8_t { EXIST = 0, WRONG_TYPE = 1, DO_NOT_EXIST = 2 };
 // ============================================================================
 // Adapter interfaces
 // ============================================================================
+
+/**
+ * @brief Adapter to load data into a C++ class from an external source
+ */
 struct LoadAdapter {
   virtual ~LoadAdapter() = default;
 
@@ -48,6 +52,10 @@ template <typename T>
 concept WriterAdapterImplementation = std::is_base_of_v<LoadAdapter, T>;
 
 // ============================================================================
+
+/**
+ * @brief Adapter to save data from a C++ class to an external source
+ */
 struct SaveAdapter {
   virtual ~SaveAdapter() = default;
 
