@@ -20,7 +20,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace minecraft::nbt::byte::base {
+namespace minecraft::nbt {
 
 // ============================================================================
 
@@ -41,14 +41,17 @@ struct FieldInfo {
  *
  */
 struct FieldValue {
-  explicit FieldValue(const std::any &v) : value(v) {}
+  explicit FieldValue(const Tag tag, const std::any &v) : tag_(tag), value(v) {}
   ~FieldValue() = default;
 
   template <typename C> const C as() const { return std::any_cast<C>(value); }
 
+  inline Tag tag() const { return tag_; }
+
 protected:
+  Tag tag_;
   std::any value;
 };
 
-} // namespace minecraft::nbt::byte::base
+} // namespace minecraft::nbt
 #endif

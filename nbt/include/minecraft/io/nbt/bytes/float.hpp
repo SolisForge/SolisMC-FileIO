@@ -45,7 +45,7 @@ struct FloatByteParser : public ByteParserInterface {
    */
   inline T get() const { return (is_done()) ? value : 0; }
 
-  inline FieldValue get_value() const override { return FieldValue(get()); }
+  inline FieldValue get_value() const override { return FieldValue(TypeToTag<T>::TAG, get()); }
 
 private:
   T value{0};

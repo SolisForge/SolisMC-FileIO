@@ -13,6 +13,7 @@
 #define SOLISMC_IO_NBT_BYTE_PARSING_LIST
 
 #include "minecraft/io/nbt/bytes/integral.hpp" // IWYU pragma: keep
+#include "minecraft/io/nbt/tag.hpp"
 #include <vector>
 
 namespace minecraft::nbt::byte::base {
@@ -71,7 +72,9 @@ struct ListByteParser : public ByteParserInterface {
     return (is_done()) ? std::move(value) : std::vector<T>{};
   }
 
-  inline FieldValue get_value() const override { return FieldValue(get()); }
+  inline FieldValue get_value() const override {
+    return FieldValue(TypeToTag<std::vector<T>>::TAG, get());
+  }
 
 private:
   IntegralByteParser<uint32_t, GV> size_parser;

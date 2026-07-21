@@ -12,9 +12,9 @@
 #ifndef SOLISMC_NBT_BYTE_PARSING_OBJECT_PARSER_INTERFACE
 #define SOLISMC_NBT_BYTE_PARSING_OBJECT_PARSER_INTERFACE
 
-#include "minecraft/io/nbt/bytes/field.hpp"
 #include "minecraft/io/nbt/bytes/interface.hpp"
 #include "minecraft/io/nbt/bytes/string.hpp"
+#include "minecraft/io/nbt/field.hpp"
 #include <bitset>
 
 namespace minecraft::nbt::byte::base {

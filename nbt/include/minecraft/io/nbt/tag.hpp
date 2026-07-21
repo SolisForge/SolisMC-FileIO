@@ -46,6 +46,36 @@ MK_TAG_TYPE_STRUCT(LONG_ARRAY, std::vector<int64_t>);
 MK_TAG_TYPE_STRUCT(STRING, std::string);
 #undef MK_TAG_TYPE_STRUCT
 
+template <typename T> struct TypeToTag {
+  static constexpr Tag TAG{Tag::COMPOUND};
+};
+#define MK_TAG_TYPE_STRUCT(tag, type)                                          \
+  template <> struct TypeToTag<type> { static constexpr Tag TAG{Tag::tag}; };
+MK_TAG_TYPE_STRUCT(BYTE, int8_t);
+MK_TAG_TYPE_STRUCT(BYTE, uint8_t);
+MK_TAG_TYPE_STRUCT(SHORT, int16_t);
+MK_TAG_TYPE_STRUCT(SHORT, uint16_t);
+MK_TAG_TYPE_STRUCT(INT, int32_t);
+MK_TAG_TYPE_STRUCT(INT, uint32_t);
+MK_TAG_TYPE_STRUCT(LONG, int64_t);
+MK_TAG_TYPE_STRUCT(LONG, uint64_t);
+
+MK_TAG_TYPE_STRUCT(FLOAT, float);
+MK_TAG_TYPE_STRUCT(DOUBLE, double);
+
+template <typename T> struct TypeToTag<std::vector<T>> {
+  static constexpr Tag TAG{Tag::LIST};
+};
+MK_TAG_TYPE_STRUCT(BYTE_ARRAY, std::vector<int8_t>);
+MK_TAG_TYPE_STRUCT(BYTE_ARRAY, std::vector<uint8_t>);
+MK_TAG_TYPE_STRUCT(INT_ARRAY, std::vector<int32_t>);
+MK_TAG_TYPE_STRUCT(INT_ARRAY, std::vector<uint32_t>);
+MK_TAG_TYPE_STRUCT(LONG_ARRAY, std::vector<int64_t>);
+MK_TAG_TYPE_STRUCT(LONG_ARRAY, std::vector<uint64_t>);
+
+MK_TAG_TYPE_STRUCT(STRING, std::string);
+#undef MK_TAG_TYPE_STRUCT
+
 // ============================================================================
 // Tag <-> int, str, ...
 // ============================================================================

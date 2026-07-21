@@ -13,6 +13,7 @@
 #define SOLISMC_IO_NBT_BYTE_PARSING_INTEGRAL
 
 #include "minecraft/io/nbt/bytes/interface.hpp"
+#include "minecraft/io/nbt/tag.hpp"
 #include <concepts>
 #include <cstdint>
 
@@ -40,7 +41,9 @@ struct IntegralByteParser : public ByteParserInterface {
    */
   inline T get() const { return (is_done()) ? value : 0; }
 
-  inline FieldValue get_value() const override { return FieldValue(get()); }
+  inline FieldValue get_value() const override {
+    return FieldValue(TypeToTag<T>::TAG, get());
+  }
 
 private:
   T value{0};

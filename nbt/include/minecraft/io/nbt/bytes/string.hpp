@@ -40,7 +40,9 @@ template <GameVersion GV> struct StringByteParser : public ByteParserInterface {
     return (is_done()) ? std::move(value) : std::string{};
   }
 
-  inline FieldValue get_value() const override { return FieldValue(get()); }
+  inline FieldValue get_value() const override {
+    return FieldValue(Tag::STRING, get());
+  }
 
 private:
   /**

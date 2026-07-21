@@ -45,7 +45,7 @@ TEST_CASE("WriteAdapter::set_field") {
 
   SUBCASE("Setting int value") {
     FieldInfo info{"foo", Tag::INT};
-    FieldValue value{10};
+    FieldValue value{Tag::INT, 10};
 
     CHECK_EQ(obj->foo, 0);
     adapt.set_field(info, value);
@@ -53,7 +53,7 @@ TEST_CASE("WriteAdapter::set_field") {
   }
   SUBCASE("Setting value of wrong type") {
     FieldInfo info{"foo", Tag::INT};
-    FieldValue value{std::string{}};
+    FieldValue value{Tag::INT, std::string{}};
 
     CHECK_EQ(obj->foo, 0);
     CHECK_THROWS(adapt.set_field(info, value));
@@ -61,7 +61,7 @@ TEST_CASE("WriteAdapter::set_field") {
   SUBCASE("Setting string value") {
     FieldInfo info{"name", Tag::STRING};
     std::string new_value{"test object"};
-    FieldValue value{new_value};
+    FieldValue value{Tag::STRING, new_value};
 
     CHECK_EQ(obj->name.size(), 0);
     adapt.set_field(info, value);

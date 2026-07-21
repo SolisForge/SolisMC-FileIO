@@ -12,7 +12,7 @@
 #ifndef SOLISMC_IO_NBT_COMMON_INTERFACE
 #define SOLISMC_IO_NBT_COMMON_INTERFACE
 
-#include "minecraft/io/nbt/bytes/field.hpp"
+#include "minecraft/io/nbt/field.hpp"
 #include "minecraft/io/nbt/tag.hpp"
 #include <bit>
 #include <cstdint>

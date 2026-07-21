@@ -11,10 +11,10 @@
 // ============================================================================
 #ifndef SOLISMC_NBT_BYTE_PARSING_STRUCT_PARSER
 #define SOLISMC_NBT_BYTE_PARSING_STRUCT_PARSER
-#include "minecraft/io/nbt/bytes/field.hpp"
 #include "minecraft/io/nbt/bytes/interface.hpp"
 #include "minecraft/io/nbt/bytes/struct/adapter.hpp"
 #include "minecraft/io/nbt/bytes/struct/object_parser_interface.hpp"
+#include "minecraft/io/nbt/field.hpp"
 #include "minecraft/io/nbt/tag.hpp"
 #include <bitset>
 #include <cstddef>
@@ -50,7 +50,9 @@ struct ObjectParser : ObjectParserInterface<GV> {
       : ObjectParserInterface<GV>(), object_(obj), adapter_(Adapter(object_)) {}
 
   std::shared_ptr<C> get() const noexcept { return object_; }
-  FieldValue get_value() const noexcept override { return FieldValue(get()); }
+  FieldValue get_value() const noexcept override {
+    return FieldValue(Tag::COMPOUND, get());
+  }
 
 protected:
   std::shared_ptr<C> object_;
