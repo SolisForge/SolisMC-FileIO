@@ -32,9 +32,8 @@ struct Compound : public std::unordered_map<std::string, FieldValue> {
    * @param tag the NBT type tag of the field
    * @param value the value of this field
    */
-  inline void set(const std::string &name, const Tag tag,
-                  const FieldValue &value) {
-    this->insert_or_assign(name, std::pair{tag, value});
+  inline void set(const std::string &name, const FieldValue &value) {
+    this->insert_or_assign(name, value);
   }
 
   /**

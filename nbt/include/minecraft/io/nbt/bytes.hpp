@@ -15,10 +15,11 @@
 #include "minecraft/io/nbt/bytes/interface.hpp"
 
 // Implementations of all parsers / writers
-#include "minecraft/io/nbt/bytes/float.hpp"                // IWYU pragma: keep
-#include "minecraft/io/nbt/bytes/integral.hpp"             // IWYU pragma: keep
-#include "minecraft/io/nbt/bytes/list.hpp"                 // IWYU pragma: keep
-#include "minecraft/io/nbt/bytes/string.hpp"               // IWYU pragma: keep
+#include "minecraft/io/nbt/bytes/float.hpp"    // IWYU pragma: keep
+#include "minecraft/io/nbt/bytes/integral.hpp" // IWYU pragma: keep
+#include "minecraft/io/nbt/bytes/list.hpp"     // IWYU pragma: keep
+#include "minecraft/io/nbt/bytes/string.hpp"   // IWYU pragma: keep
+#include "minecraft/io/nbt/bytes/struct/compound_parser.hpp" // IWYU pragma: keep
 #include "minecraft/io/nbt/bytes/struct/object_parser.hpp" // IWYU pragma: keep
 
 namespace minecraft::nbt {
