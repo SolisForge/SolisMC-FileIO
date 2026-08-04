@@ -36,8 +36,12 @@ template <GameVersion GV> struct StringByteParser : public ByteParserInterface {
   /**
    * @brief Get the read value if the parser is done, else an empty string
    */
-  inline std::string get() {
+  inline std::string get() const {
     return (is_done()) ? std::move(value) : std::string{};
+  }
+
+  inline FieldValue get_value() const override {
+    return FieldValue(Tag::STRING, get());
   }
 
 private:
