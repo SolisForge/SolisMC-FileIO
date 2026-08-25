@@ -12,6 +12,8 @@
 #ifndef SOLISMC_IO_NBT_COMMON_INTERFACE
 #define SOLISMC_IO_NBT_COMMON_INTERFACE
 
+#include "minecraft/io/nbt/field.hpp"
+#include "minecraft/io/nbt/tag.hpp"
 #include <bit>
 #include <cstdint>
 #include <solis/utils/macros.hpp>
@@ -27,7 +29,12 @@ using Buffer = char *;
 using Size = std::size_t;
 constexpr auto BIT_PER_BYTE{8};
 
-enum class ParseResult : uint8_t { ENDED, UNFINISHED };
+enum class ParseResult : uint8_t {
+  ENDED,
+  UNFINISHED,
+  UNKNOWN_FIELD,
+  WRONG_TYPE,
+};
 enum class WriteResult : uint8_t { ENDED, UNFINISHED };
 
 enum class GameVersion { JAVA, BEDROCK };
@@ -51,6 +58,8 @@ namespace byte::base {
  */
 struct ByteParserInterface {
 
+  using UniquePtr = std::unique_ptr<ByteParserInterface>;
+
   virtual ~ByteParserInterface() = default;
 
   /**
@@ -61,6 +70,11 @@ struct ByteParserInterface {
    * @return the state of the parsing
    */
   virtual ParseResult parse(Stream &strm, Size &n) = 0;
+
+  /**
+   * @brief Get the value contained inside a FieldValue object
+   */
+  virtual FieldValue get_value() const = 0;
 
   /**
    * @brief Has the parser finished reading the last value
@@ -79,9 +93,7 @@ struct ByteParserInterface {
  * @tparam typename
  * @tparam GameVersion
  */
-template <typename, GameVersion> struct ByteParser {
-  static_assert(false, "The parser for this type was not implemented");
-};
+template <typename, GameVersion> struct ByteParser;
 
 // ============================================================================
 
@@ -118,9 +130,7 @@ struct ByteWriterInterface {
  * @tparam typename
  * @tparam GameVersion
  */
-template <typename, GameVersion> struct ByteWriter {
-  static_assert(false, "The writer for this type was not implemented");
-};
+template <typename, GameVersion> struct ByteWriter;
 
 // ============================================================================
 // Concepts
