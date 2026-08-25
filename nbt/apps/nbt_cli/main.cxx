@@ -16,7 +16,6 @@
 #include <cstdio>
 #include <cstring>
 #include <format>
-#include <iomanip>
 #include <iostream>
 #include <sstream>
 
@@ -26,27 +25,25 @@ using minecraft::nbt::byte::read_int;
 using minecraft::nbt::byte::Stream;
 
 // ============================================================================
-int main(int argc, char **argv) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
   // Read byte from cin
   std::stringstream ss;
   char b;
-  (void)std::freopen(std::nullptr_t{}, "rb", stdin);
+  (void)!std::freopen(std::nullptr_t{}, "rb", stdin);
   while (std::cin >> b)
     ss << b;
 
   int value{0};
   IntParseState state;
-  std::cout << "Init stream" << std::endl;
   auto arg = ss.str();
   Stream p{arg.c_str(), arg.size()};
 
-  std::cout << "Parsing stream" << std::endl;
   if (auto ret = read_int<>(p, state, value); ret == ParseResult::UNFINISHED) {
     std::cout << "Parsing could not finish ... " << std::endl;
   } else {
     std::cout << "Parsed NBT char stream ";
-    for (std::size_t i = 0; i < arg.size(); i++) {
-      std::cout << std::format("\\x{:0>2x}", arg[i]);
+    for (auto &c : arg) {
+      std::cout << std::format("\\x{:02x}", c);
     }
     std::cout << " to " << value << std::endl;
   }

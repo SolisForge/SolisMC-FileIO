@@ -78,5 +78,7 @@ namespace minecraft::nbt::byte {
 
 EXPORT(int8_t);
 EXPORT(int16_t);
+EXPORT(int32_t);
+EXPORT(int64_t);
 
 } // namespace minecraft::nbt::byte

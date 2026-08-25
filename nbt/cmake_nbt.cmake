@@ -28,7 +28,11 @@ add_solis_executable(
     nbt_cli
     DIRECTORIES "nbt/apps/nbt_cli"
     DEPENDS nbt
-
+)
+set_target_properties(
+    nbt_cli
+    PROPERTIES 
+        OUTPUT_NAME "nbt"
 )
 
 # =============================================================================

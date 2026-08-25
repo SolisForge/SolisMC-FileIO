@@ -13,9 +13,9 @@
 
 #include "minecraft/game_info.hpp"
 #include "minecraft/io/nbt/bytes/base/common.hpp"
+#include <bit>
 #include <concepts>
 #include <cstdint>
-#include <memory>
 
 namespace minecraft::nbt::byte {
 
@@ -50,8 +50,6 @@ template <std::endian data_endianness> ParseResult read_integral(ARGS_IMPL);
 // Specializations
 template <> ParseResult read_integral<std::endian::little>(ARGS_IMPL);
 template <> ParseResult read_integral<std::endian::big>(ARGS_IMPL);
-extern template ParseResult read_integral<std::endian::little>(ARGS_IMPL);
-extern template ParseResult read_integral<std::endian::big>(ARGS_IMPL);
 
 #undef ARGS_IMPL
 } // namespace base
@@ -129,6 +127,9 @@ ParseResult read_int(ARGS(T)) {
   extern template ParseResult read_int<type, GameVersion::BEDROCK>(ARGS(type));
 
 EXPORT(int8_t)
+EXPORT(int16_t)
+EXPORT(int32_t)
+EXPORT(int64_t)
 
 #undef EXPORT
 #undef ARGS
