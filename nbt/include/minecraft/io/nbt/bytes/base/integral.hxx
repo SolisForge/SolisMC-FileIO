@@ -11,8 +11,8 @@
 // ============================================================================
 #pragma once
 
-#include "minecraft/game_info.hpp"
-#include "minecraft/io/nbt/bytes/base/common.hpp"
+#include "minecraft/game_info.hxx"
+#include "minecraft/io/nbt/bytes/base/common.hxx"
 #include <bit>
 #include <concepts>
 #include <cstdint>
@@ -23,10 +23,10 @@ namespace minecraft::nbt::byte {
 // Base implementation
 // ============================================================================
 struct IntParseState {
-  uint8_t read_int{0};
+  uint8_t read_char{0};
 
   inline auto left(uint8_t tlen) const {
-    return static_cast<std::size_t>(tlen - read_int);
+    return static_cast<std::size_t>(tlen - read_char);
   }
 };
 
@@ -60,6 +60,7 @@ template <> ParseResult read_integral<std::endian::big>(ARGS_IMPL);
 #define ARGS(T) Stream &strm, IntParseState &state, T &value
 
 // Java implementation
+// ----------------------------------------------------------------------------
 namespace java {
 
 /**
@@ -79,6 +80,7 @@ template <std::signed_integral T> inline ParseResult read_int(ARGS(T)) {
 } // namespace java
 
 // Bedrock implementation
+// ----------------------------------------------------------------------------
 namespace bedrock {
 
 /**
@@ -98,6 +100,7 @@ template <std::signed_integral T> inline ParseResult read_int(ARGS(T)) {
 } // namespace bedrock
 
 // General-purpose implementation
+// ----------------------------------------------------------------------------
 #define ARGS_FWD strm, state, value
 
 /**

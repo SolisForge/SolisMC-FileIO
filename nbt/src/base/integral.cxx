@@ -9,8 +9,8 @@
 // Copyright Solis Forge | 2026
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
-#include "minecraft/io/nbt/bytes/base/integral.hpp"
-#include "minecraft/io/nbt/bytes/base/common.hpp"
+#include "minecraft/io/nbt/bytes/base/integral.hxx"
+#include "minecraft/io/nbt/bytes/base/common.hxx"
 #include <cmath>
 #include <cstdint>
 
@@ -35,8 +35,8 @@ inline ParseResult read_partial_int(Stream &strm, IntParseState &state,
                                     const uint8_t tlen, char *value) {
   auto to_read = std::min(strm.n, state.left(tlen));
 
-  auto end_index = state.read_int + to_read;
-  for (uint8_t i = state.read_int; i < end_index; i++) {
+  auto end_index = state.read_char + to_read;
+  for (uint8_t i = state.read_char; i < end_index; i++) {
     // Data endianness is the same as system
     if constexpr (std::endian::native == data_endianness)
       value[i] = strm.data[0];
@@ -45,10 +45,10 @@ inline ParseResult read_partial_int(Stream &strm, IntParseState &state,
       value[tlen - i - 1] = strm.data[0];
 
     strm.inc();
-    state.read_int += 1;
+    state.read_char += 1;
   }
-  return (state.read_int == tlen) ? ParseResult::ENDED
-                                  : ParseResult::UNFINISHED;
+  return (state.read_char == tlen) ? ParseResult::ENDED
+                                   : ParseResult::UNFINISHED;
 }
 
 // ============================================================================
