@@ -24,7 +24,10 @@ int main(int argc, char **argv) {
   // Read input
   auto bytes = (opts.input == ReadFrom::STDIN) ? from_stdin()
                                                : from_file(opts.input_file);
-
-  decode_bytes(bytes, opts.data_type);
-  return 0;
+  try {
+    auto error = decode_bytes(bytes, opts.data_type);
+    return 0;
+  } catch (...) {
+    return 1;
+  }
 }

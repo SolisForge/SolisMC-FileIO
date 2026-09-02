@@ -10,55 +10,27 @@
 //           Distributed under MIT License (https://opensource.org/licenses/MIT)
 // ============================================================================
 #include "minecraft/io/nbt/bytes/base/integral.hxx"
-#include "minecraft/io/nbt/bytes/base/common.hxx"
-#include <cmath>
 #include <cstdint>
+#include <iostream>
+
+#include "byte_helper.hxx"
 
 namespace minecraft::nbt::byte::base {
 
 // ============================================================================
-// Generic implementation
-// ============================================================================
-
-/**
- * @brief Partial int parsing from bytes
- *
- * @tparam data_endianness endianness of the encoded data
- * @param strm stream to read from
- * @param state the current state of the parsing
- * @param tlen the number of bytes for this type
- * @param value the value to fill
- * @return ParseResult the result of the parsing
- */
-template <std::endian data_endianness>
-inline ParseResult read_partial_int(Stream &strm, IntParseState &state,
-                                    const uint8_t tlen, char *value) {
-  auto to_read = std::min(strm.n, state.left(tlen));
-
-  auto end_index = state.read_char + to_read;
-  for (uint8_t i = state.read_char; i < end_index; i++) {
-    // Data endianness is the same as system
-    if constexpr (std::endian::native == data_endianness)
-      value[i] = strm.data[0];
-    // Data is stored in reverse order
-    else
-      value[tlen - i - 1] = strm.data[0];
-
-    strm.inc();
-    state.read_char += 1;
-  }
-  return (state.read_char == tlen) ? ParseResult::ENDED
-                                   : ParseResult::UNFINISHED;
-}
-
-// ============================================================================
-// Bindings
+// Implementation for each endianness
 // ============================================================================
 #define BIND(endianess)                                                        \
   template <>                                                                  \
   ParseResult read_integral<endianess>(Stream & strm, IntParseState & state,   \
                                        const uint8_t tlen, char *value) {      \
-    return read_partial_int<endianess>(strm, state, tlen, value);              \
+    auto read =                                                                \
+        helper::copy_bytes<endianess>(strm, value, tlen, state.read_char);     \
+    state.read_char += read;                                                   \
+    std::cout << "Current state = " << (int)state.read_char                    \
+              << " / type length = " << (int)tlen << std::endl;                \
+    return (state.read_char == tlen) ? ParseResult::ENDED                      \
+                                     : ParseResult::UNFINISHED;                \
   }
 
 BIND(std::endian::little)

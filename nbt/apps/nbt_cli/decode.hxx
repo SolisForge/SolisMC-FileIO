@@ -11,8 +11,19 @@
 // ============================================================================
 #pragma once
 #include "minecraft/io/nbt/tags.hxx"
+#include <format>
+#include <solis/utils/errors.hpp>
 #include <string>
 
 using minecraft::nbt::Tags;
 
-int decode_bytes(std::string const &bytes, Tags const tag);
+// ============================================================================
+struct DecodingNotImplemented : public solis::SolisError {
+
+  explicit DecodingNotImplemented(Tags const tag)
+      : solis::SolisError(std::format(
+            "Decoding for type {} is not implemented ", to_str(tag))) {}
+};
+
+// ============================================================================
+int decode_bytes(std::string &bytes, Tags const tag);

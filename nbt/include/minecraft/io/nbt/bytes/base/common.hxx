@@ -11,6 +11,7 @@
 // ============================================================================
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 
@@ -32,7 +33,7 @@ enum class ParseResult : uint8_t {
  * @brief Stream container
  */
 struct Stream {
-  const char *data = std::nullptr_t{};
+  char *data = std::nullptr_t{};
   std::size_t n{0};
 
   /**
@@ -41,8 +42,9 @@ struct Stream {
   inline void inc(std::size_t const i = 1) {
     if (n < i)
       return;
-    data += i;
-    n -= i;
+    auto to_add = std::min(i, n - i);
+    data += to_add;
+    n -= to_add;
   }
 };
 

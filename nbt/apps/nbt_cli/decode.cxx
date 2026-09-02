@@ -13,9 +13,7 @@
 #include <concepts>
 #include <cstdlib>
 #include <iostream>
-#include <stdexcept>
 
-#include "minecraft/io/nbt/bytes/base/common.hxx"
 #include "minecraft/io/nbt/bytes/base/float.hxx"
 #include "minecraft/io/nbt/bytes/base/integral.hxx"
 
@@ -25,6 +23,8 @@ template <typename T>
 int display_value(T const &value, ParseResult const &result) {
   if (result == ParseResult::ENDED)
     std::cout << value << std::endl;
+  else
+    std::cout << "UNFINISHED" << std::endl;
   return (int)(result);
 }
 
@@ -43,26 +43,27 @@ template <std::floating_point T> int decode_float(Stream &strm) {
 }
 
 // ============================================================================
-int decode_bytes(const std::string &bytes, const Tags tag) {
-  Stream strm{bytes.c_str(), bytes.length()};
+int decode_bytes(std::string &bytes, const Tags tag) {
+  Stream strm{bytes.data(), bytes.length()};
+  using enum minecraft::nbt::Tags;
   switch (tag) {
     // Integral type
-  case Tags::BYTE:
+  case BYTE:
     return decode_integral<int8_t>(strm);
-  case Tags::SHORT:
+  case SHORT:
     return decode_integral<int16_t>(strm);
-  case Tags::INT:
+  case INT:
     return decode_integral<int32_t>(strm);
-  case Tags::LONG:
+  case LONG:
     return decode_integral<int64_t>(strm);
 
-    // Floating point type
-    // case Tags::FLOAT:
-    //   return decode_float<float>(strm);
-    // case Tags::DOUBLE:
-    //   return decode_float<double>(strm);
+  // Floating point type
+  case FLOAT:
+    return decode_float<float>(strm);
+  case DOUBLE:
+    return decode_float<double>(strm);
 
   default:
-    throw std::runtime_error{"Decoding not implemented"};
+    throw DecodingNotImplemented(tag);
   }
 }

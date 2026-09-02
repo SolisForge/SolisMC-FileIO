@@ -31,4 +31,6 @@ enum class Tags : uint8_t {
   LONG_ARRAY, // unsigned INT size + size LONG
 };
 
+const char *to_str(Tags const tag);
+
 } // namespace minecraft::nbt
